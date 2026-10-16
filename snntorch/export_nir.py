@@ -69,7 +69,8 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
 
         beta = module.beta.detach().cpu().numpy()
         vthr = module.threshold.detach().cpu().numpy()
-        vthr = np.array([vthr]) if isinstance(vthr, (int, float)) else vthr
+        # NIR requires all parameters of a node to have the same shape
+        beta, vthr = (np.array(a) for a in np.broadcast_arrays(beta, vthr))
         tau_mem = dt / (1 - beta)
         r = tau_mem / dt
         v_leak = np.zeros_like(beta)
@@ -98,7 +99,10 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         alpha = module.alpha.detach().cpu().numpy()
         beta = module.beta.detach().cpu().numpy()
         vthr = module.threshold.detach().cpu().numpy()
-        vthr = np.array([vthr]) if isinstance(vthr, (int, float)) else vthr
+        # NIR requires all parameters of a node to have the same shape
+        alpha, beta, vthr = (
+            np.array(a) for a in np.broadcast_arrays(alpha, beta, vthr)
+        )
 
         tau_syn = dt / (1 - alpha)
         tau_mem = dt / (1 - beta)
@@ -233,6 +237,55 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         return None
 
 
+_NEURON_PARAM_ATTRS = (
+    (
+        nir.CubaLIF,
+        (
+            "tau_syn",
+            "tau_mem",
+            "r",
+            "v_leak",
+            "v_reset",
+            "v_threshold",
+            "w_in",
+        ),
+    ),
+    (nir.LIF, ("tau", "r", "v_leak", "v_reset", "v_threshold")),
+)
+
+
+def _neuron_param_attrs(node):
+    for node_type, attrs in _NEURON_PARAM_ATTRS:
+        if isinstance(node, node_type):
+            return attrs
+    return None
+
+
+def _broadcast_neuron_params(nir_graph, neuron_shapes):
+    """Broadcast LIF/CubaLIF parameters to the population shape of the neuron.
+
+    Scalar snn.Leaky/snn.Synaptic parameters become 0-d arrays on export.
+    NIR derives input_type/output_type from those shapes, so infer_types()
+    fails with e.g. ``[[128]] -> []`` (issues #410, #334). The population
+    shape is the input shape of the neuron recorded while tracing the model,
+    e.g. (N,) after a Linear layer or (C, H, W) after a Conv2d layer.
+    """
+    for name, node in nir_graph.nodes.items():
+        attrs = _neuron_param_attrs(node)
+        if attrs is None or name not in neuron_shapes:
+            continue
+
+        shape = neuron_shapes[name]
+        for attr in attrs:
+            value = getattr(node, attr, None)
+            if value is not None:
+                setattr(node, attr, np.broadcast_to(value, shape).copy())
+
+        # __post_init__ already set types from the old parameter shapes.
+        node.input_type = {"input": np.array(shape)}
+        node.output_type = {"output": np.array(shape)}
+
+
 def export_to_nir(
     module: torch.nn.Module,
     sample_data: torch.Tensor,
@@ -286,15 +339,38 @@ def export_to_nir(
     :return: return the NIR graph
     :rtype: nir.NIRNode
     """
-    nir_graph = nirtorch.extract_nir_graph(
-        module,
-        _extract_snntorch_module,
-        sample_data,
-        model_name=model_name,
-        ignore_submodules_of=[snn.RLeaky, snn.RSynaptic],
-        model_fwd_args=model_fwd_args,
-        ignore_dims=ignore_dims,
-    )
+    # record the input shape of each Leaky/Synaptic neuron while nirtorch
+    # traces the model; NIR node names follow the torch module names
+    neuron_shapes = {}
+
+    def record_input_shape(name):
+        def hook(_module, args):
+            shape = np.delete(np.array(args[0].shape), ignore_dims or [])
+            neuron_shapes[name] = tuple(int(d) for d in shape)
+
+        return hook
+
+    hooks = [
+        submodule.register_forward_pre_hook(record_input_shape(name))
+        for name, submodule in module.named_modules()
+        if isinstance(submodule, (snn.Leaky, snn.Synaptic))
+    ]
+    try:
+        nir_graph = nirtorch.extract_nir_graph(
+            module,
+            _extract_snntorch_module,
+            sample_data,
+            model_name=model_name,
+            ignore_submodules_of=[snn.RLeaky, snn.RSynaptic],
+            model_fwd_args=model_fwd_args,
+            ignore_dims=ignore_dims,
+        )
+    finally:
+        for hook in hooks:
+            hook.remove()
+
+    # neuron parameters must match the population shape before type checks
+    _broadcast_neuron_params(nir_graph, neuron_shapes)
     # ensure node input and output types are fully defined
     nir_graph.infer_types()
     return nir_graph

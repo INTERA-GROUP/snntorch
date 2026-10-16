@@ -291,3 +291,273 @@ class TestNIR:
         y_nir, state = net(x)
         assert y_nir.shape == (4, 10), y_nir.shape
         assert torch.allclose(y_snn, y_nir)
+
+
+def _roundtrip(graph, path):
+    nir.write(str(path), graph)
+    return nir.read(str(path))
+
+
+def _scalar_synaptic_net(in_features, width):
+    return torch.nn.Sequential(
+        torch.nn.Linear(in_features, width),
+        snn.Synaptic(
+            alpha=0.5,
+            beta=0.9,
+            threshold=1.0,
+            init_hidden=True,
+            output=True,
+        ),
+    )
+
+
+def _scalar_leaky_net(in_features, width):
+    return torch.nn.Sequential(
+        torch.nn.Linear(in_features, width),
+        snn.Leaky(beta=0.9, threshold=1.0, init_hidden=True, output=True),
+    )
+
+
+_LIF_PARAMS = ("tau", "r", "v_leak", "v_reset", "v_threshold")
+_CUBALIF_PARAMS = (
+    "tau_syn",
+    "tau_mem",
+    "r",
+    "v_leak",
+    "v_reset",
+    "v_threshold",
+    "w_in",
+)
+
+
+def _assert_population_shape(node, shape):
+    params = _CUBALIF_PARAMS if isinstance(node, nir.CubaLIF) else _LIF_PARAMS
+    for attr in params:
+        assert np.asarray(getattr(node, attr)).shape == shape, attr
+    assert tuple(node.input_type["input"]) == shape
+    assert tuple(node.output_type["output"]) == shape
+
+
+class TestNeuronParamShapes:
+    """Regression tests for issues #410 and #334."""
+
+    def test_issue_410_scalar_synaptic_roundtrip(self, tmp_path):
+        net = _scalar_synaptic_net(2450, 128)
+        graph = export_to_nir(net, torch.ones(1, 2450), ignore_dims=[0])
+
+        neuron = graph.nodes["1"]
+        assert isinstance(neuron, nir.CubaLIF)
+        assert np.asarray(neuron.v_threshold).shape == (128,)
+        assert np.asarray(neuron.tau_syn).shape == (128,)
+        assert np.asarray(neuron.tau_mem).shape == (128,)
+        assert np.asarray(neuron.r).shape == (128,)
+        assert np.asarray(neuron.v_leak).shape == (128,)
+        assert np.asarray(neuron.v_reset).shape == (128,)
+        assert np.asarray(neuron.w_in).shape == (128,)
+        assert list(np.asarray(neuron.input_type["input"])) == [128]
+        assert list(np.asarray(neuron.output_type["output"])) == [128]
+
+        reloaded = _roundtrip(graph, tmp_path / "issue410.nir")
+        reloaded_neuron = reloaded.nodes["1"]
+        assert np.allclose(
+            np.asarray(reloaded_neuron.v_threshold),
+            np.asarray(neuron.v_threshold),
+        )
+        assert np.allclose(
+            np.asarray(reloaded_neuron.tau_mem),
+            np.asarray(neuron.tau_mem),
+        )
+        assert np.allclose(
+            np.asarray(reloaded_neuron.tau_syn),
+            np.asarray(neuron.tau_syn),
+        )
+        assert np.asarray(reloaded_neuron.v_threshold).shape == (128,)
+
+    def test_scalar_synaptic_width_4(self, tmp_path):
+        net = _scalar_synaptic_net(16, 4)
+        graph = export_to_nir(net, torch.ones(1, 16), ignore_dims=[0])
+        neuron = graph.nodes["1"]
+        assert isinstance(neuron, nir.CubaLIF)
+        assert np.asarray(neuron.v_threshold).shape == (4,)
+        reloaded = _roundtrip(graph, tmp_path / "width4.nir")
+        assert np.asarray(reloaded.nodes["1"].v_threshold).shape == (4,)
+
+    def test_scalar_leaky_roundtrip(self, tmp_path):
+        net = _scalar_leaky_net(2450, 128)
+        graph = export_to_nir(net, torch.ones(1, 2450), ignore_dims=[0])
+
+        neuron = graph.nodes["1"]
+        assert isinstance(neuron, nir.LIF)
+        assert np.asarray(neuron.v_threshold).shape == (128,)
+        assert np.asarray(neuron.tau).shape == (128,)
+        assert np.asarray(neuron.r).shape == (128,)
+        assert np.asarray(neuron.v_leak).shape == (128,)
+        assert np.asarray(neuron.v_reset).shape == (128,)
+        assert list(np.asarray(neuron.input_type["input"])) == [128]
+        assert list(np.asarray(neuron.output_type["output"])) == [128]
+
+        reloaded = _roundtrip(graph, tmp_path / "scalar_leaky.nir")
+        assert np.asarray(reloaded.nodes["1"].v_threshold).shape == (128,)
+        assert np.allclose(
+            np.asarray(reloaded.nodes["1"].v_threshold),
+            np.asarray(neuron.v_threshold),
+        )
+
+    def test_vector_params_unchanged(self, tmp_path):
+        n = 16
+        beta = 0.9 * torch.ones(n)
+        thr = torch.ones(n)
+        alpha = 0.5 * torch.ones(n)
+        net = torch.nn.Sequential(
+            torch.nn.Linear(32, n),
+            snn.Synaptic(
+                alpha=alpha,
+                beta=beta,
+                threshold=thr,
+                init_hidden=True,
+                output=True,
+            ),
+        )
+        graph = export_to_nir(net, torch.ones(1, 32), ignore_dims=[0])
+        neuron = graph.nodes["1"]
+        assert np.asarray(neuron.v_threshold).shape == (n,)
+        assert np.allclose(np.asarray(neuron.v_threshold), 1.0)
+        reloaded = _roundtrip(graph, tmp_path / "vector.nir")
+        assert np.asarray(reloaded.nodes["1"].v_threshold).shape == (n,)
+        assert np.allclose(np.asarray(reloaded.nodes["1"].v_threshold), 1.0)
+
+    def test_mixed_param_shapes(self):
+        """A vector beta/alpha combined with the default scalar threshold."""
+        n = 8
+        leaky = snn.Leaky(
+            beta=0.9 * torch.ones(n), init_hidden=True, output=True
+        )
+        synaptic = snn.Synaptic(
+            alpha=0.5 * torch.ones(n), beta=0.9, init_hidden=True, output=True
+        )
+        for neuron in (leaky, synaptic):
+            net = torch.nn.Sequential(torch.nn.Linear(16, n), neuron)
+            graph = export_to_nir(net, torch.ones(1, 16), ignore_dims=[0])
+            _assert_population_shape(graph.nodes["1"], (n,))
+            assert np.allclose(graph.nodes["1"].v_threshold, 1.0)
+
+    def test_conv_scalar_params(self, tmp_path):
+        """Neurons after a Conv2d layer have the (C, H, W) output shape."""
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            snn.Leaky(beta=0.9, init_hidden=True),
+            torch.nn.Flatten(),
+            torch.nn.Linear(4 * 8 * 8, 10),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        _assert_population_shape(graph.nodes["1"], (4, 8, 8))
+        _assert_population_shape(graph.nodes["4"], (10,))
+        reloaded = _roundtrip(graph, tmp_path / "conv.nir")
+        _assert_population_shape(reloaded.nodes["1"], (4, 8, 8))
+
+    def test_conv_per_channel_params(self):
+        """Per-channel (C, 1, 1) parameters are broadcast along H and W."""
+        beta = torch.linspace(0.5, 0.9, 4).reshape(4, 1, 1)
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            snn.Leaky(beta=beta, init_hidden=True),
+            torch.nn.Flatten(),
+            torch.nn.Linear(4 * 8 * 8, 10),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        neuron = graph.nodes["1"]
+        _assert_population_shape(neuron, (4, 8, 8))
+        dt = 1e-4
+        expected_tau = np.broadcast_to(dt / (1 - beta.numpy()), (4, 8, 8))
+        assert np.allclose(neuron.tau, expected_tau)
+
+    def test_flatten_then_neuron(self):
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            torch.nn.AvgPool2d(kernel_size=2, stride=2),
+            torch.nn.Flatten(),
+            snn.Leaky(beta=0.9, init_hidden=True),
+            torch.nn.Linear(4 * 4 * 4, 10),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        _assert_population_shape(graph.nodes["3"], (4 * 4 * 4,))
+        _assert_population_shape(graph.nodes["5"], (10,))
+
+    @pytest.mark.parametrize(
+        "recurrent",
+        [
+            lambda: snn.RLeaky(beta=0.9, linear_features=40, init_hidden=True),
+            lambda: snn.RSynaptic(
+                alpha=0.5, beta=0.9, linear_features=40, init_hidden=True
+            ),
+        ],
+        ids=["RLeaky", "RSynaptic"],
+    )
+    def test_recurrent_followed_by_scalar_neuron(self, recurrent):
+        net = torch.nn.Sequential(
+            torch.nn.Linear(12, 40),
+            recurrent(),
+            torch.nn.Linear(40, 7),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 12), ignore_dims=[0])
+        _assert_population_shape(graph.nodes["1.lif"], (40,))
+        _assert_population_shape(graph.nodes["3"], (7,))
+
+    def test_class_style_names(self):
+        """Neurons are matched by module name, also in nested modules."""
+
+        class Net(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.fc1 = torch.nn.Linear(16, 20)
+                self.lif1 = snn.Leaky(beta=0.9)
+                self.blk = torch.nn.Sequential(
+                    torch.nn.Linear(20, 5),
+                    snn.Leaky(beta=0.8, init_hidden=True, output=True),
+                )
+
+            def forward(self, x):
+                mem1 = self.lif1.reset_mem()
+                spk1, mem1 = self.lif1(self.fc1(x), mem1)
+                return self.blk(spk1)
+
+        graph = export_to_nir(Net(), torch.ones(1, 16), ignore_dims=[0])
+        _assert_population_shape(graph.nodes["lif1"], (20,))
+        _assert_population_shape(graph.nodes["blk.1"], (5,))
+
+    def test_scalar_equals_vector_export(self):
+        n = 8
+        scalar = snn.Synaptic(
+            alpha=0.7, beta=0.9, threshold=1.3, init_hidden=True, output=True
+        )
+        vector = snn.Synaptic(
+            alpha=0.7 * torch.ones(n),
+            beta=0.9 * torch.ones(n),
+            threshold=1.3 * torch.ones(n),
+            init_hidden=True,
+            output=True,
+        )
+        nodes = [
+            export_to_nir(
+                torch.nn.Sequential(torch.nn.Linear(16, n), neuron),
+                torch.ones(1, 16),
+                ignore_dims=[0],
+            ).nodes["1"]
+            for neuron in (scalar, vector)
+        ]
+        for attr in _CUBALIF_PARAMS:
+            assert np.array_equal(
+                getattr(nodes[0], attr), getattr(nodes[1], attr)
+            ), attr
+
+    def test_hooks_removed(self):
+        """Exporting leaves no hooks on the model, also when it fails."""
+        net = _scalar_leaky_net(16, 8)
+        export_to_nir(net, torch.ones(1, 16), ignore_dims=[0])
+        with pytest.raises(Exception):
+            export_to_nir(net, torch.ones(1, 3), ignore_dims=[0])
+        assert all(len(m._forward_pre_hooks) == 0 for m in net.modules())
