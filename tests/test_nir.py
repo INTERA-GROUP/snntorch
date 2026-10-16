@@ -631,3 +631,51 @@ class TestAvgPool2dExport:
             assert torch.equal(spk_snn, spk_nir)
             n_spikes += int(spk_snn.sum())
         assert n_spikes > 0
+
+
+class TestUnsupportedModules:
+    """Modules without a NIR equivalent raise instead of exporting."""
+
+    @pytest.mark.parametrize(
+        "layer, name",
+        [
+            (lambda: torch.nn.MaxPool2d(2), "MaxPool2d"),
+            (
+                lambda: snn.Alpha(alpha=0.9, beta=0.8, init_hidden=True),
+                "Alpha",
+            ),
+        ],
+        ids=["MaxPool2d", "Alpha"],
+    )
+    def test_unsupported_module_raises(self, layer, name):
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            layer(),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        with pytest.raises(NotImplementedError, match=name):
+            export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+
+    def _avgpool_net(self, pool):
+        return torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            pool,
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+
+    def test_avgpool_divisor_override_raises(self):
+        net = self._avgpool_net(torch.nn.AvgPool2d(2, divisor_override=1))
+        with pytest.raises(NotImplementedError, match="divisor_override"):
+            export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+
+    def test_avgpool_count_include_pad_with_padding_raises(self):
+        pool = torch.nn.AvgPool2d(2, padding=1, count_include_pad=False)
+        net = self._avgpool_net(pool)
+        with pytest.raises(NotImplementedError, match="count_include_pad"):
+            export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+
+    def test_avgpool_count_include_pad_without_padding_exports(self):
+        pool = torch.nn.AvgPool2d(2, count_include_pad=False)
+        net = self._avgpool_net(pool)
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        assert isinstance(graph.nodes["1"], nir.AvgPool2d)

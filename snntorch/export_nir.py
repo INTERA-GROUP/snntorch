@@ -57,6 +57,16 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
             ),
         )
     elif isinstance(module, torch.nn.AvgPool2d):
+        # NIR average pooling always divides by the kernel size
+        if module.divisor_override is not None:
+            raise NotImplementedError(
+                "AvgPool2d with divisor_override cannot be exported to NIR"
+            )
+        if not module.count_include_pad and any(_pair(module.padding)):
+            raise NotImplementedError(
+                "AvgPool2d with count_include_pad=False and padding cannot "
+                "be exported to NIR"
+            )
         return nir.AvgPool2d(
             kernel_size=_pair(module.kernel_size),  # (Height, Width)
             stride=_pair(
@@ -234,8 +244,9 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         )
 
     else:
-        print(f"[WARNING] module not implemented: {module.__class__.__name__}")
-        return None
+        raise NotImplementedError(
+            f"{module.__class__.__name__} cannot be exported to NIR"
+        )
 
 
 _NEURON_PARAM_ATTRS = (
