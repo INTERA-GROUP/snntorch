@@ -3,6 +3,7 @@ from typing import Optional, Tuple, Union
 import torch
 import os
 import sys
+import warnings
 import nir
 import numpy as np
 import nirtorch
@@ -76,6 +77,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         )
 
     elif isinstance(module, snn.Leaky):
+        _warn_unrepresentable_reset(module)
         dt = 1e-4
 
         # beta is clamped to [0, 1] as in the forward pass
@@ -117,6 +119,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
             )
 
     elif isinstance(module, snn.Synaptic):
+        _warn_unrepresentable_reset(module)
         dt = 1e-4
 
         # TODO: assert that size of the current layer is correct
@@ -150,6 +153,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         )
 
     elif isinstance(module, snn.RLeaky):
+        _warn_unrepresentable_reset(module)
         if module.all_to_all:
             w_rec = _extract_snntorch_module(module.recurrent)
             if hasattr(w_rec, "weight"):
@@ -204,6 +208,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         )
 
     elif isinstance(module, snn.RSynaptic):
+        _warn_unrepresentable_reset(module)
         if module.all_to_all:
             w_rec = _extract_snntorch_module(module.recurrent)
             n_neurons = w_rec.weight.shape[0]
@@ -274,6 +279,28 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
     else:
         raise NotImplementedError(
             f"{module.__class__.__name__} cannot be exported to NIR"
+        )
+
+
+def _warn_unrepresentable_reset(module):
+    """Warn if the reset of a neuron differs from the NIR reset to v_reset.
+
+    NIR neurons reset the membrane potential to v_reset right after a
+    spike, which is the "zero" reset mechanism. Except for Leaky, the
+    delayed zero reset is applied after integrating the next input.
+    """
+    name = module.__class__.__name__
+    if module.reset_mechanism != "zero":
+        warnings.warn(
+            f"{name} uses reset_mechanism='{module.reset_mechanism}', but "
+            "NIR resets the membrane potential to v_reset; it is exported "
+            "with a reset to zero"
+        )
+    elif module.reset_delay and not isinstance(module, snn.Leaky):
+        warnings.warn(
+            f"{name} with reset_mechanism='zero' and reset_delay=True "
+            "resets after integrating the next input, which NIR cannot "
+            "represent; use reset_delay=False for an exact export"
         )
 
 

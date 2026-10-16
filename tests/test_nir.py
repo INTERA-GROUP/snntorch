@@ -811,3 +811,156 @@ class TestBetaAlphaEdgeValues:
         net = torch.nn.Sequential(torch.nn.Linear(4, 3), neuron())
         with pytest.raises(NotImplementedError, match=name):
             export_to_nir(net, torch.ones(1, 4), ignore_dims=[0])
+
+
+def _nir_reference_spikes(graph, x, neuron, w_rec=None):
+    """Spikes of an Affine -> neuron graph, computed with the NIR equations.
+
+    Forward Euler with dt = 1e-4 as in the export; the membrane potential
+    resets to v_reset right after a spike. The recurrent node w_rec, if
+    given, feeds the spikes of the previous step back to the neuron.
+    """
+    dt = 1e-4
+    affine, node = graph.nodes["0"], graph.nodes[neuron]
+
+    def param(name):
+        return np.asarray(getattr(node, name), dtype=np.float64)
+
+    v = np.zeros(param("v_threshold").shape)
+    i_syn = np.zeros_like(v)
+    spk = np.zeros_like(v)
+    spikes = []
+    for x_t in x:
+        i_in = affine.weight @ x_t + affine.bias
+        if w_rec is not None:
+            rec = graph.nodes[w_rec]
+            i_in = i_in + rec.weight @ spk + getattr(rec, "bias", 0)
+        if isinstance(node, nir.CubaLIF):
+            i_syn = i_syn + dt / param("tau_syn") * (
+                -i_syn + param("w_in") * i_in
+            )
+            v = v + dt / param("tau_mem") * (
+                param("v_leak") - v + param("r") * i_syn
+            )
+        else:
+            v = v + dt / param("tau") * (
+                param("v_leak") - v + param("r") * i_in
+            )
+        spk = (v > param("v_threshold")).astype(np.float64)
+        v = np.where(spk == 1, param("v_reset"), v)
+        spikes.append(spk)
+    return np.array(spikes)
+
+
+class TestResetSemantics:
+    """NIR neurons reset the membrane potential to v_reset after a spike."""
+
+    @pytest.mark.parametrize(
+        "neuron, reset_delay, key",
+        [
+            (lambda **kw: snn.Leaky(beta=0.8, **kw), True, "1"),
+            (lambda **kw: snn.Leaky(beta=0.8, **kw), False, "1"),
+            (
+                lambda **kw: snn.Synaptic(alpha=0.6, beta=0.8, **kw),
+                False,
+                "1",
+            ),
+            (
+                lambda **kw: snn.RLeaky(beta=0.8, linear_features=6, **kw),
+                False,
+                "1.lif",
+            ),
+            (
+                lambda **kw: snn.RSynaptic(
+                    alpha=0.6, beta=0.8, linear_features=6, **kw
+                ),
+                False,
+                "1.lif",
+            ),
+        ],
+        ids=[
+            "Leaky_delay",
+            "Leaky_no_delay",
+            "Synaptic_no_delay",
+            "RLeaky_no_delay",
+            "RSynaptic_no_delay",
+        ],
+    )
+    def test_representable_resets_match_nir(
+        self, neuron, reset_delay, key, recwarn
+    ):
+        from snntorch import utils
+
+        torch.manual_seed(0)
+        net = torch.nn.Sequential(
+            torch.nn.Linear(5, 6),
+            neuron(
+                init_hidden=True,
+                output=True,
+                reset_mechanism="zero",
+                reset_delay=reset_delay,
+            ),
+        )
+        x = 1.5 * torch.rand(40, 1, 5)
+        graph = export_to_nir(net, x[0], ignore_dims=[0])
+        assert not [w for w in recwarn if "reset_mechanism" in str(w.message)]
+
+        w_rec = "1.w_rec" if key == "1.lif" else None
+        expected = _nir_reference_spikes(
+            graph, x[:, 0].numpy().astype(np.float64), key, w_rec
+        )
+        utils.reset(net)
+        spikes = np.array([net(x_t)[0].detach().numpy()[0] for x_t in x])
+        assert np.array_equal(spikes, expected)
+        assert spikes.sum() > 0
+
+    @pytest.mark.parametrize(
+        "neuron, reset_mechanism, match",
+        [
+            (
+                lambda **kw: snn.Leaky(beta=0.8, **kw),
+                "subtract",
+                "reset_mechanism='subtract'",
+            ),
+            (
+                lambda **kw: snn.Leaky(beta=0.8, **kw),
+                "none",
+                "reset_mechanism='none'",
+            ),
+            (
+                lambda **kw: snn.Synaptic(alpha=0.6, beta=0.8, **kw),
+                "zero",
+                "reset_delay=True",
+            ),
+            (
+                lambda **kw: snn.RLeaky(beta=0.8, linear_features=6, **kw),
+                "zero",
+                "reset_delay=True",
+            ),
+            (
+                lambda **kw: snn.RSynaptic(
+                    alpha=0.6, beta=0.8, linear_features=6, **kw
+                ),
+                "zero",
+                "reset_delay=True",
+            ),
+        ],
+        ids=[
+            "Leaky_subtract",
+            "Leaky_none",
+            "Synaptic_zero_delay",
+            "RLeaky_zero_delay",
+            "RSynaptic_zero_delay",
+        ],
+    )
+    def test_unrepresentable_resets_warn(self, neuron, reset_mechanism, match):
+        net = torch.nn.Sequential(
+            torch.nn.Linear(5, 6),
+            neuron(
+                init_hidden=True,
+                output=True,
+                reset_mechanism=reset_mechanism,
+            ),
+        )
+        with pytest.warns(UserWarning, match=match):
+            export_to_nir(net, torch.ones(1, 5), ignore_dims=[0])
