@@ -7,6 +7,7 @@ import nir
 import numpy as np
 import nirtorch
 import snntorch as snn
+from torch.nn.modules.utils import _pair
 
 
 
@@ -57,11 +58,11 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         )
     elif isinstance(module, torch.nn.AvgPool2d):
         return nir.AvgPool2d(
-            kernel_size=module.kernel_size,  # (Height, Width)
-            stride=module.kernel_size
-            if module.stride is None
-            else module.stride,  # (Height, width)
-            padding=(0, 0),  # (Height, width)
+            kernel_size=_pair(module.kernel_size),  # (Height, Width)
+            stride=_pair(
+                module.kernel_size if module.stride is None else module.stride
+            ),  # (Height, width)
+            padding=_pair(module.padding),  # (Height, width)
         )
 
     elif isinstance(module, snn.Leaky):

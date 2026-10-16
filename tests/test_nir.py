@@ -561,3 +561,73 @@ class TestNeuronParamShapes:
         with pytest.raises(Exception):
             export_to_nir(net, torch.ones(1, 3), ignore_dims=[0])
         assert all(len(m._forward_pre_hooks) == 0 for m in net.modules())
+
+
+class TestAvgPool2dExport:
+    """AvgPool2d is exported with (height, width) pairs."""
+
+    @pytest.mark.parametrize(
+        "pool, kernel_size, stride",
+        [
+            (torch.nn.AvgPool2d(2), (2, 2), (2, 2)),
+            (torch.nn.AvgPool2d(2, stride=1), (2, 2), (1, 1)),
+            (torch.nn.AvgPool2d((2, 3), stride=(1, 2)), (2, 3), (1, 2)),
+        ],
+        ids=["int", "int_stride", "tuple"],
+    )
+    def test_kernel_stride_padding_are_pairs(
+        self, pool, kernel_size, stride, tmp_path
+    ):
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            pool,
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        reloaded = _roundtrip(graph, tmp_path / "avgpool.nir")
+        for node in (graph.nodes["1"], reloaded.nodes["1"]):
+            assert tuple(node.kernel_size) == kernel_size
+            assert tuple(node.stride) == stride
+            assert tuple(node.padding) == (0, 0)
+
+    def test_padding_exported(self):
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            torch.nn.AvgPool2d(2, padding=1),
+            snn.Leaky(beta=0.9, init_hidden=True, output=True),
+        )
+        graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
+        assert tuple(graph.nodes["1"].padding) == (1, 1)
+        _assert_population_shape(graph.nodes["2"], (4, 5, 5))
+
+    def test_conv_avgpool_roundtrip(self):
+        """The imported network produces the same spikes over time."""
+        from snntorch import utils
+
+        torch.manual_seed(0)
+        net = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 4, kernel_size=3, padding=1),
+            torch.nn.AvgPool2d(2),
+            # NIR neurons reset to v_reset, i.e. the "zero" reset mechanism
+            snn.Leaky(
+                beta=0.9,
+                init_hidden=True,
+                output=True,
+                reset_mechanism="zero",
+            ),
+        )
+        x = 4 * torch.rand(5, 1, 1, 8, 8)
+        graph = export_to_nir(net, x[0], ignore_dims=[0])
+        imported = import_from_nir(graph)
+
+        utils.reset(net)
+        state = None
+        n_spikes = 0
+        for x_t in x:
+            spk_snn, _ = net(x_t)
+            spk_nir, state = imported(x_t, state)
+            if isinstance(spk_nir, tuple):
+                spk_nir = spk_nir[0]
+            assert torch.equal(spk_snn, spk_nir)
+            n_spikes += int(spk_snn.sum())
+        assert n_spikes > 0
