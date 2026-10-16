@@ -17,7 +17,9 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
     Intermediate Representation (NIR). This function is used internally by the export_to_nir
     function to convert each submodule/layer of the network to the NIR.
 
-    Currently supported snnTorch modules: Leaky, Linear, Synaptic, RLeaky, RSynaptic.
+    Currently supported modules: Linear, Conv2d, AvgPool2d, Flatten, Leaky,
+    Synaptic, RLeaky, RSynaptic. A Leaky neuron with beta=1 is converted to an
+    IF neuron. Other modules raise a NotImplementedError.
 
     Note that recurrent layers such as RLeaky and RSynaptic will be converted to a NIR graph,
     which will then be embedded as a subgraph into the main NIR graph.
@@ -26,7 +28,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
     :type module: torch.nn.Module
 
     :return: return the NIR node
-    :rtype: Optional[nir.NIRNode]
+    :rtype: nir.NIRNode
     """
     # Adding Conv2d layer
     """
@@ -369,6 +371,11 @@ def export_to_nir(
     The NIR is a graph-based representation of a spiking neural network, which can be used to
     port the network to different neuromorphic hardware and software platforms.
 
+    NIR neurons reset the membrane potential to v_reset after a spike. The
+    export is exact for ``reset_mechanism="zero"`` with ``reset_delay=False``
+    (for Leaky also with ``reset_delay=True``); other resets are exported as a
+    reset to zero with a warning.
+
     Example::
 
         import snntorch as snn
@@ -387,7 +394,8 @@ def export_to_nir(
         )
 
         sample_data = torch.randn(1, 784)
-        nir_graph = export_to_nir(net, sample_data)
+        # dimension 0 of sample_data is the batch dimension
+        nir_graph = export_to_nir(net, sample_data, ignore_dims=[0])
 
     :param module: Network model (either wrapped in Sequential container or as a class)
     :type module: torch.nn.Module
@@ -401,7 +409,8 @@ def export_to_nir(
     :param model_fwd_args: Arguments to pass to the forward function of the model
     :type model_fwd_args: list, optional
 
-    :param ignore_dims: List of dimensions to ignore when extracting the NIR
+    :param ignore_dims: Dimensions of sample_data that are not part of the
+        network shape, e.g. [0] for the batch dimension
     :type ignore_dims: list, optional
 
     :return: return the NIR graph
