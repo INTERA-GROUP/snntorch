@@ -679,3 +679,135 @@ class TestUnsupportedModules:
         net = self._avgpool_net(pool)
         graph = export_to_nir(net, torch.ones(1, 1, 8, 8), ignore_dims=[0])
         assert isinstance(graph.nodes["1"], nir.AvgPool2d)
+
+
+_LEARN = dict(init_hidden=True, output=True)
+
+
+def _with_learned(neuron, **values):
+    for name, value in values.items():
+        getattr(neuron, name).data.fill_(value)
+    return neuron
+
+
+class TestBetaAlphaEdgeValues:
+    """beta and alpha are exported as clamped to [0, 1] by the neurons."""
+
+    def test_leaky_beta_one_exports_if(self):
+        from snntorch import utils
+
+        torch.manual_seed(0)
+        net = torch.nn.Sequential(
+            torch.nn.Linear(4, 3),
+            snn.Leaky(
+                beta=1.0,
+                init_hidden=True,
+                output=True,
+                reset_mechanism="zero",
+            ),
+        )
+        # a positive input current integrates up to the threshold
+        net[0].weight.data.fill_(0.2)
+        net[0].bias.data.zero_()
+        x = torch.rand(6, 1, 4)
+        graph = export_to_nir(net, x[0], ignore_dims=[0])
+        neuron = graph.nodes["1"]
+        assert isinstance(neuron, nir.IF)
+        assert np.array_equal(neuron.r, np.ones(3))
+        assert tuple(neuron.input_type["input"]) == (3,)
+
+        # NIR IF: v[t+1] = v[t] + r * i[t], reset to v_reset after a spike
+        utils.reset(net)
+        v = np.zeros(3, dtype=np.float32)
+        n_spikes = 0
+        for x_t in x:
+            spk_snn, _ = net(x_t)
+            v = v + neuron.r * net[0](x_t).detach().numpy()[0]
+            spk_nir = (v > neuron.v_threshold).astype(np.float32)
+            v = np.where(spk_nir == 1, neuron.v_reset, v)
+            assert np.array_equal(spk_snn.detach().numpy()[0], spk_nir)
+            n_spikes += int(spk_nir.sum())
+        assert n_spikes > 0
+
+    @pytest.mark.parametrize(
+        "neuron, learned, node_type, attr, expected",
+        [
+            (
+                lambda: snn.Leaky(beta=0.9, learn_beta=True, **_LEARN),
+                {"beta": 1.2},
+                nir.IF,
+                "r",
+                1.0,
+            ),
+            (
+                lambda: snn.Leaky(beta=0.9, learn_beta=True, **_LEARN),
+                {"beta": -0.3},
+                nir.LIF,
+                "tau",
+                1e-4,
+            ),
+            (
+                lambda: snn.Synaptic(
+                    alpha=0.5, beta=0.9, learn_beta=True, **_LEARN
+                ),
+                {"beta": -0.3},
+                nir.CubaLIF,
+                "tau_mem",
+                1e-4,
+            ),
+        ],
+        ids=["leaky_above_one", "leaky_below_zero", "synaptic_below_zero"],
+    )
+    def test_learned_values_are_clamped(
+        self, neuron, learned, node_type, attr, expected
+    ):
+        layer = _with_learned(neuron(), **learned)
+        net = torch.nn.Sequential(torch.nn.Linear(4, 3), layer)
+        graph = export_to_nir(net, torch.ones(1, 4), ignore_dims=[0])
+        node = graph.nodes["1"]
+        assert isinstance(node, node_type)
+        assert np.allclose(getattr(node, attr), expected)
+
+    def test_leaky_partial_beta_one_raises(self):
+        layer = snn.Leaky(beta=torch.tensor([0.9, 1.0, 1.0]), **_LEARN)
+        net = torch.nn.Sequential(torch.nn.Linear(4, 3), layer)
+        with pytest.raises(NotImplementedError, match="only some"):
+            export_to_nir(net, torch.ones(1, 4), ignore_dims=[0])
+
+    @pytest.mark.parametrize(
+        "neuron",
+        [
+            lambda: snn.Synaptic(alpha=1.0, beta=0.9, **_LEARN),
+            lambda: snn.Synaptic(alpha=0.5, beta=1.0, **_LEARN),
+            lambda: _with_learned(
+                snn.Synaptic(alpha=0.5, beta=0.9, learn_alpha=True, **_LEARN),
+                alpha=1.3,
+            ),
+        ],
+        ids=["alpha_one", "beta_one", "learned_alpha_above_one"],
+    )
+    def test_synaptic_alpha_or_beta_one_raises(self, neuron):
+        net = torch.nn.Sequential(torch.nn.Linear(4, 3), neuron())
+        with pytest.raises(NotImplementedError, match="Synaptic"):
+            export_to_nir(net, torch.ones(1, 4), ignore_dims=[0])
+
+    @pytest.mark.parametrize(
+        "neuron, name",
+        [
+            (
+                lambda: snn.RLeaky(beta=1.0, linear_features=3, **_LEARN),
+                "RLeaky",
+            ),
+            (
+                lambda: snn.RSynaptic(
+                    alpha=0.5, beta=1.0, linear_features=3, **_LEARN
+                ),
+                "RSynaptic",
+            ),
+        ],
+        ids=["RLeaky", "RSynaptic"],
+    )
+    def test_recurrent_beta_one_raises(self, neuron, name):
+        net = torch.nn.Sequential(torch.nn.Linear(4, 3), neuron())
+        with pytest.raises(NotImplementedError, match=name):
+            export_to_nir(net, torch.ones(1, 4), ignore_dims=[0])

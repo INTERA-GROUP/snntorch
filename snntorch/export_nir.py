@@ -78,10 +78,23 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
     elif isinstance(module, snn.Leaky):
         dt = 1e-4
 
-        beta = module.beta.detach().cpu().numpy()
+        # beta is clamped to [0, 1] as in the forward pass
+        beta = module.beta.detach().cpu().numpy().clip(0, 1)
         vthr = module.threshold.detach().cpu().numpy()
         # NIR requires all parameters of a node to have the same shape
         beta, vthr = (np.array(a) for a in np.broadcast_arrays(beta, vthr))
+        if np.all(beta == 1):
+            # without leak, the neuron is an integrate-and-fire neuron
+            return nir.IF(
+                r=np.ones_like(vthr),
+                v_threshold=vthr,
+                v_reset=np.zeros_like(vthr),
+            )
+        if np.any(beta == 1):
+            raise NotImplementedError(
+                "Leaky with beta=1 for only some neurons cannot be exported "
+                "to NIR"
+            )
         tau_mem = dt / (1 - beta)
         r = tau_mem / dt
         v_leak = np.zeros_like(beta)
@@ -107,13 +120,18 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
         dt = 1e-4
 
         # TODO: assert that size of the current layer is correct
-        alpha = module.alpha.detach().cpu().numpy()
-        beta = module.beta.detach().cpu().numpy()
+        # alpha and beta are clamped to [0, 1] as in the forward pass
+        alpha = module.alpha.detach().cpu().numpy().clip(0, 1)
+        beta = module.beta.detach().cpu().numpy().clip(0, 1)
         vthr = module.threshold.detach().cpu().numpy()
         # NIR requires all parameters of a node to have the same shape
         alpha, beta, vthr = (
             np.array(a) for a in np.broadcast_arrays(alpha, beta, vthr)
         )
+        if np.any(alpha == 1) or np.any(beta == 1):
+            raise NotImplementedError(
+                "Synaptic with alpha=1 or beta=1 cannot be exported to NIR"
+            )
 
         tau_syn = dt / (1 - alpha)
         tau_mem = dt / (1 - beta)
@@ -150,10 +168,15 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
 
         dt = 1e-4
 
-        beta = module.beta.detach().cpu().numpy()
+        # beta is clamped to [0, 1] as in the forward pass
+        beta = module.beta.detach().cpu().numpy().clip(0, 1)
         vthr = module.threshold.detach().cpu().numpy()
         beta = np.ones(n_neurons) * beta
         vthr = np.ones(n_neurons) * vthr
+        if np.any(beta == 1):
+            raise NotImplementedError(
+                "RLeaky with beta=1 cannot be exported to NIR"
+            )
 
         tau_mem = dt / (1 - beta)
         r = tau_mem / dt
@@ -196,12 +219,17 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
 
         dt = 1e-4
 
-        alpha = module.alpha.detach().cpu().numpy()
-        beta = module.beta.detach().cpu().numpy()
+        # alpha and beta are clamped to [0, 1] as in the forward pass
+        alpha = module.alpha.detach().cpu().numpy().clip(0, 1)
+        beta = module.beta.detach().cpu().numpy().clip(0, 1)
         vthr = module.threshold.detach().cpu().numpy()
         alpha = np.ones(n_neurons) * alpha
         beta = np.ones(n_neurons) * beta
         vthr = np.ones(n_neurons) * vthr
+        if np.any(alpha == 1) or np.any(beta == 1):
+            raise NotImplementedError(
+                "RSynaptic with alpha=1 or beta=1 cannot be exported to NIR"
+            )
 
         tau_syn = dt / (1 - alpha)
         tau_mem = dt / (1 - beta)
@@ -263,6 +291,7 @@ _NEURON_PARAM_ATTRS = (
         ),
     ),
     (nir.LIF, ("tau", "r", "v_leak", "v_reset", "v_threshold")),
+    (nir.IF, ("r", "v_reset", "v_threshold")),
 )
 
 
