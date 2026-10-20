@@ -1,12 +1,11 @@
 # Adapted from https://github.com/nmi-lab/torchneuromorphic
 # by Emre Neftci and Clemens Schaefer
 
+import bisect
+
 import numpy as np
 import pandas as pd
 import torch
-import bisect
-
-from torchvision.transforms import Compose, Normalize, Lambda
 
 
 def find_first(a, tgt):
@@ -18,7 +17,7 @@ def shuffle_along_axis(a, axis):
     return np.take_along_axis(a, idx, axis=axis)
 
 
-class toOneHot(object):
+class toOneHot:
     def __init__(self, num_classes):
         self.num_classes = num_classes
 
@@ -28,7 +27,7 @@ class toOneHot(object):
         return y_onehot.scatter_(1, torch.LongTensor(integers), 1)
 
 
-class toDtype(object):
+class toDtype:
     def __init__(self, dtype):
         self.dtype = dtype
 
@@ -36,7 +35,7 @@ class toDtype(object):
         return torch.tensor(integers, dtype=self.dtype)
 
 
-class Downsample(object):
+class Downsample:
     """Resize the address event Tensor to the given size.
     Args:
         factor: : Desired resize factor. Applied to all dimensions
@@ -100,7 +99,7 @@ class Downsample(object):
 #         return self.__class__.__name__ + '()'
 
 
-class CropDims(object):
+class CropDims:
     def __init__(self, low_crop, high_crop, dims):
         self.low_crop = low_crop
         self.high_crop = high_crop
@@ -120,7 +119,7 @@ class CropDims(object):
         return self.__class__.__name__ + "()"
 
 
-class CropCenter(object):
+class CropCenter:
     def __init__(self, center, size):
         self.center = np.array(center, dtype=np.uint32)
         self.att_shape = np.array(size[1:], dtype=np.uint32)
@@ -139,7 +138,7 @@ class CropCenter(object):
         return self.__class__.__name__ + "()"
 
 
-class Attention(object):
+class Attention:
     def __init__(self, n_attention_events, size):
         """
         Crop around the median event in the last n_events.
@@ -171,7 +170,7 @@ class Attention(object):
         return self.__class__.__name__ + "()"
 
 
-class ToChannelHeightWidth(object):
+class ToChannelHeightWidth:
     def __call__(self, tmad):
         n = tmad.shape[1]
         if n == 2:
@@ -183,15 +182,15 @@ class ToChannelHeightWidth(object):
 
         else:
             raise TypeError(
-                "Wrong number of dimensions. Found {0}, "
-                "expected 1 or 3".format(n - 1)
+                f"Wrong number of dimensions. Found {n - 1}, "
+                "expected 1 or 3"
             )
 
     def __repr__(self):
         return self.__class__.__name__ + "()"
 
 
-class ToCountFrame(object):
+class ToCountFrame:
     """Convert Address Events to Binary tensor.
     Converts a numpy.ndarray (T x H x W x C) to a torch.FloatTensor of shape
     (T x C x H x W) in the range [0., 1., ...]
@@ -222,10 +221,10 @@ class ToCountFrame(object):
         return chunks
 
     def __repr__(self):
-        return self.__class__.__name__ + "(T={0})".format(self.T)
+        return self.__class__.__name__ + f"(T={self.T})"
 
 
-class ToEventSum(object):
+class ToEventSum:
     """Convert Address Events to Image By Summing.
     Converts a numpy.ndarray (T x H x W x C) to a torch.FloatTensor of shape
     (C x H x W) in the range [0., 1., ...]
@@ -259,7 +258,7 @@ class ToEventSum(object):
         return self.__class__.__name__ + "()"
 
 
-class FilterEvents(object):
+class FilterEvents:
     def __init__(self, kernel=None, groups=1, tpad=None):
         self.kernel = kernel
         self.groups = groups
@@ -306,7 +305,7 @@ class ExpFilterEvents(FilterEvents):
         super().__init__(kernel, groups, tpad, **kwargs)
 
 
-class Rescale(object):
+class Rescale:
     """Rescale the event sum Tensor by the given factor.
     Args:
         factor: : Desired rescale factor.
@@ -319,11 +318,11 @@ class Rescale(object):
         return chunks * self.factor
 
     def __repr__(self):
-        return self.__class__.__name__ + "({0})".format(self.factor)
+        return self.__class__.__name__ + f"({self.factor})"
 
 
 # debug
-class hflip(object):
+class hflip:
     """Horizontally flip the given image.
 
     Args:
@@ -344,7 +343,7 @@ class hflip(object):
         return self.__class__.__name__ + "()"
 
 
-class rot90(object):
+class rot90:
     """Rotate given image 90 degrees CW."""
 
     def __call__(self, target):
@@ -354,7 +353,7 @@ class rot90(object):
         return self.__class__.__name__ + "()"
 
 
-class dvs_permute(object):
+class dvs_permute:
     def __call__(self, target):
         return target.flip([-2]).rot90(1, [-1, -2])
 
@@ -362,7 +361,7 @@ class dvs_permute(object):
         return self.__class__.__name__ + "()"
 
 
-class Repeat(object):
+class Repeat:
     """
     Replicate np.array (C) as (n_repeat X C). This is useful to transform
     sample labels into sequences
@@ -378,7 +377,7 @@ class Repeat(object):
         return self.__class__.__name__ + "()"
 
 
-class ToTensor(object):
+class ToTensor:
     """Convert a ``numpy.ndarray`` to tensor.
     Converts a numpy.ndarray to a torch.FloatTensor of the same shape
     """
@@ -397,4 +396,4 @@ class ToTensor(object):
         return torch.FloatTensor(frame).to(self.device)
 
     def __repr__(self):
-        return self.__class__.__name__ + "(device:{0})".format(self.device)
+        return self.__class__.__name__ + f"(device:{self.device})"

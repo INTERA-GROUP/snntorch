@@ -1,6 +1,5 @@
-from typing import Callable, Union
-
 import math
+from collections.abc import Callable
 
 import torch
 import torch.nn as nn
@@ -13,8 +12,8 @@ def stdp_linear_single_step(
     fc: nn.Linear,
     in_spike: torch.Tensor,
     out_spike: torch.Tensor,
-    trace_pre: Union[float, torch.Tensor, None],
-    trace_post: Union[float, torch.Tensor, None],
+    trace_pre: float | torch.Tensor | None,
+    trace_post: float | torch.Tensor | None,
     tau_pre: float,
     tau_post: float,
     f_pre: Callable = lambda x: x,
@@ -52,8 +51,8 @@ def mstdp_linear_single_step(
     fc: nn.Linear,
     in_spike: torch.Tensor,
     out_spike: torch.Tensor,
-    trace_pre: Union[float, torch.Tensor, None],
-    trace_post: Union[float, torch.Tensor, None],
+    trace_pre: float | torch.Tensor | None,
+    trace_post: float | torch.Tensor | None,
     tau_pre: float,
     tau_post: float,
     f_pre: Callable = lambda x: x,
@@ -88,8 +87,8 @@ def mstdpet_linear_single_step(
     fc: nn.Linear,
     in_spike: torch.Tensor,
     out_spike: torch.Tensor,
-    trace_pre: Union[float, torch.Tensor, None],
-    trace_post: Union[float, torch.Tensor, None],
+    trace_pre: float | torch.Tensor | None,
+    trace_post: float | torch.Tensor | None,
     tau_pre: float,
     tau_post: float,
     tau_trace: float,
@@ -120,8 +119,8 @@ def stdp_conv2d_single_step(
     conv: nn.Conv2d,
     in_spike: torch.Tensor,
     out_spike: torch.Tensor,
-    trace_pre: Union[torch.Tensor, None],
-    trace_post: Union[torch.Tensor, None],
+    trace_pre: torch.Tensor | None,
+    trace_post: torch.Tensor | None,
     tau_pre: float,
     tau_post: float,
     f_pre: Callable = lambda x: x,
@@ -207,8 +206,8 @@ def stdp_conv1d_single_step(
     conv: nn.Conv1d,
     in_spike: torch.Tensor,
     out_spike: torch.Tensor,
-    trace_pre: Union[torch.Tensor, None],
-    trace_post: Union[torch.Tensor, None],
+    trace_pre: torch.Tensor | None,
+    trace_post: torch.Tensor | None,
     tau_pre: float,
     tau_post: float,
     f_pre: Callable = lambda x: x,
@@ -286,7 +285,7 @@ def stdp_conv1d_single_step(
 class STDPLearner(nn.Module):
     def __init__(
         self,
-        synapse: Union[nn.Conv2d, nn.Linear],
+        synapse: nn.Conv2d | nn.Linear,
         sn,
         tau_pre: float,
         tau_post: float,
@@ -309,7 +308,7 @@ class STDPLearner(nn.Module):
         Reset the recorded data in the monitors.
         """
 
-        super(STDPLearner, self).reset()
+        super().reset()
         self.in_spike_monitor.clear_recorded_data()
         self.out_spike_monitor.clear_recorded_data()
 

@@ -1,6 +1,7 @@
-import struct
-import numpy as np
 import os
+import struct
+
+import numpy as np
 
 # Adapted from https://github.com/nmi-lab/torchneuromorphic by
 # Eire Neftci
@@ -198,7 +199,7 @@ def plot_frames_imshow(
     transpose=False,
     label_mapping=None,
 ):
-    from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+    from matplotlib.colors import LinearSegmentedColormap
     from matplotlib.pyplot import Normalize
 
     colors = ["red", "black", "green"]

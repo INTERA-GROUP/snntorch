@@ -1,6 +1,6 @@
 import torch
-from torch._C import Value
 import torch.nn as nn
+
 from snntorch import spikegen
 
 ###############################################################
@@ -113,9 +113,9 @@ class ce_rate_loss(LossFunctions):
                     )
                 # ].sum(-1)
                 ].mean(-1) # mean instead of sum for less extreme log-probs, smoother training
-            spk_out = pop_code    
+            spk_out = pop_code
         loss_fn = nn.NLLLoss(reduction=self._intermediate_reduction(), weight=self.weight)
-            
+
         log_p_y = log_softmax_fn(spk_out)
         loss_shape = (spk_out.size(1)) if self._intermediate_reduction() == 'none' else (1)
         loss = torch.zeros(loss_shape, dtype=spk_out.dtype, device=device)

@@ -1,5 +1,5 @@
-from __future__ import print_function
 import bisect
+
 import numpy as np
 
 # Adapted from https://github.com/nmi-lab/torchneuromorphic

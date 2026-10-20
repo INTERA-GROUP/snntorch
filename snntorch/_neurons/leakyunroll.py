@@ -154,7 +154,7 @@ class LeakyParallel(nn.Module):
         device=None,
         dtype=None,
     ):
-        super(LeakyParallel, self).__init__()
+        super().__init__()
 
         # if data is T x B x D, then input size is assumed to be D.
         # therefore, input size needs to be either Linear: (D), Conv: (C x X x Y)

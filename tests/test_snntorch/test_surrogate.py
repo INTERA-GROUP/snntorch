@@ -4,6 +4,7 @@
 
 import pytest
 import torch
+
 from snntorch import surrogate
 
 

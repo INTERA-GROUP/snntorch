@@ -50,8 +50,9 @@ clean-test: ## remove test and coverage artifacts
 sync: ## create/update the .venv with all extras and dev tools
 	uv sync --all-extras
 
-lint: ## check style with flake8
-	uv run flake8 snntorch tests
+lint: ## check style with ruff
+	uv run ruff check snntorch tests
+	uv run ruff format --check snntorch tests
 
 test: ## run tests quickly with the default Python
 	uv run pytest

@@ -1,5 +1,5 @@
+
 import torch
-import math
 
 # Spike-gradient functions
 

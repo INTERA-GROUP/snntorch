@@ -3,8 +3,9 @@
 """Tests for the SynapticDelay module (per-channel axonal / synaptic delay)."""
 
 import pytest
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 @pytest.fixture(scope="module")

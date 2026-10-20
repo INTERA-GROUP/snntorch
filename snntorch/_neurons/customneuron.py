@@ -2,7 +2,6 @@ import torch
 
 from .neurons import SpikingNeuron
 
-
 __all__ = ["CustomNeuron", "neuron_from_equations"]
 
 

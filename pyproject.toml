@@ -47,12 +47,12 @@ Fork = "https://github.com/INTERA-GROUP/snntorch"
 
 [dependency-groups]
 test = [
+    "snntorch[nir,plot,vision]",  # the tests exercise every optional feature
     "pytest>=8",
     "coverage>=7",
 ]
 lint = [
-    "black",
-    "flake8",
+    "ruff",
     "pre-commit",
 ]
 docs = [
@@ -97,5 +97,34 @@ version = { attr = "snntorch._version.__version__" }
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[tool.black]
-line-length = 79
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["docs/_build"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501",  # line length is left to `ruff format`; long docstrings stay as is
+    # Existing findings, enabled again once fixed in follow-up commits:
+    "W291", "W293",  # trailing whitespace (cleaned up by `ruff format`)
+    "E711",          # `== None` comparisons
+    "E741", "F841",  # ambiguous / unused variables
+    "B006", "B007", "B028", "B904", "B905", "UP031",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Re-exports and star imports are the public API of these packages.
+"__init__.py" = ["F401", "F403"]
+"snntorch/_layers/__init__.py" = ["F405"]
+"snntorch/_neurons/__init__.py" = ["F405", "E402"]
+
+[tool.ruff.format]
+quote-style = "double"

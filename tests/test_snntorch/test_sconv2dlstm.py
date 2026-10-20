@@ -3,9 +3,10 @@
 """Tests for SConv2dLSTM neuron."""
 
 import pytest
-import snntorch as snn
 import torch
 import torch._dynamo as dynamo
+
+import snntorch as snn
 
 # TO-DO: add avg/max-pooling tests
 

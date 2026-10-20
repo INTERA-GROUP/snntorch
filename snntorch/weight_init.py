@@ -12,12 +12,11 @@ Based on:
 
 import math
 import warnings
-from typing import Optional, Tuple
 
 import torch
 
 
-def _epsilon_analytical(tau_mem: float, tau_syn: float) -> Tuple[float, float]:
+def _epsilon_analytical(tau_mem: float, tau_syn: float) -> tuple[float, float]:
     """Compute PSP kernel integrals analytically.
 
     From Rossbroich et al. (2022) Supplementary Material Section S1.
@@ -39,7 +38,7 @@ def _epsilon_analytical(tau_mem: float, tau_syn: float) -> Tuple[float, float]:
 
 def _epsilon_numerical(
     tau_mem: float, tau_syn: float, dt: float
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Compute PSP kernel integrals numerically by simulating LIF dynamics.
 
     Simulates the membrane response to a single spike input through
@@ -81,7 +80,7 @@ def compute_psp_kernel_integrals(
     tau_syn: float,
     dt: float = 1e-3,
     mode: str = "analytical",
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Compute the integrals of the PSP kernel (epsilon_bar and epsilon_hat).
 
     These integrals are used by the fluctuation-driven initialization to
@@ -132,7 +131,7 @@ def fluctuation_driven_normal_(
     theta: float = 1.0,
     dt: float = 1e-3,
     mode: str = "analytical",
-    generator: Optional[torch.Generator] = None,
+    generator: torch.Generator | None = None,
 ) -> torch.Tensor:
     """Initialize weights from a normal distribution using
     fluctuation-driven initialization.
@@ -220,10 +219,10 @@ def fluctuation_driven_normal_(
     if weight_var < 0:
         raise ValueError(
             "Computed weight variance is negative "
-            "({}). This occurs when the target membrane "
+            f"({round(weight_var, 6)}). This occurs when the target membrane "
             "statistics are incompatible with the network "
             "parameters. Try increasing sigma_u or nu, "
-            "or decreasing mu_u.".format(round(weight_var, 6))
+            "or decreasing mu_u."
         )
 
     sigma_w = math.sqrt(weight_var)
@@ -243,7 +242,7 @@ def fluctuation_driven_normal_centered_(
     sigma_u: float = 1.0,
     dt: float = 1e-3,
     mode: str = "analytical",
-    generator: Optional[torch.Generator] = None,
+    generator: torch.Generator | None = None,
 ) -> torch.Tensor:
     """Initialize weights using centered fluctuation-driven
     initialization (mu_u=0).

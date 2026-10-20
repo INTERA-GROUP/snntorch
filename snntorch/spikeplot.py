@@ -1,15 +1,14 @@
-import torch
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
-import numpy as np
 import math
-
-from typing import Dict, List
 from collections import defaultdict
-from matplotlib.figure import Figure
-from matplotlib.artist import Artist
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import torch
 from matplotlib.animation import ArtistAnimation
+from matplotlib.artist import Artist
+from matplotlib.figure import Figure
+from matplotlib.gridspec import GridSpec
 
 
 def animator(data, fig, ax, num_steps=False, interval=40, cmap="plasma"):
@@ -408,7 +407,7 @@ class _GridShader:
         xticks = self.ax.get_xticks()
         xlim = self.ax.get_xlim()
         xticks = xticks[(xticks > xlim[0]) & (xticks < xlim[-1])]
-        locs = np.concatenate(([[xlim[0]], xticks, [xlim[-1]]]))
+        locs = np.concatenate([[xlim[0]], xticks, [xlim[-1]]])
 
         start = locs[1 - int(self.sf) :: 2]
         end = locs[2 - int(self.sf) :: 2]
@@ -424,7 +423,7 @@ class Camera:
         """Create camera from matplotlib figure."""
         self._figure = figure
         # need to keep track off artists for each axis
-        self._offsets: Dict[str, Dict[int, int]] = {
+        self._offsets: dict[str, dict[int, int]] = {
             k: defaultdict(int)
             for k in [
                 "collections",
@@ -435,11 +434,11 @@ class Camera:
                 "images",
             ]
         }
-        self._photos: List[List[Artist]] = []
+        self._photos: list[list[Artist]] = []
 
-    def snap(self) -> List[Artist]:
+    def snap(self) -> list[Artist]:
         """Capture current state of the figure."""
-        frame_artists: List[Artist] = []
+        frame_artists: list[Artist] = []
         for i, axis in enumerate(self._figure.axes):
             if axis.legend_ is not None:
                 axis.add_artist(axis.legend_)

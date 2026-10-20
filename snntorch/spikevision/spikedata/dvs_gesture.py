@@ -12,26 +12,27 @@
 
 # import struct
 # import time
-import numpy as np
+import glob
+import os
+
 import h5py
+import numpy as np
+from tqdm import tqdm
+
+from .._transforms import (
+    Compose,
+    Downsample,
+    Repeat,
+    ToCountFrame,
+    ToTensor,
+    dvs_permute,
+    toOneHot,
+)
+from .._utils import aedat_to_events
+from ..events_timeslices import get_tmad_slice
 
 # import torch.utils.data
 from ..neuromorphic_dataset import NeuromorphicDataset
-from ..events_timeslices import get_tmad_slice
-from .._transforms import (
-    dvs_permute,
-    Compose,
-    Repeat,
-    toOneHot,
-    ToTensor,
-    ToCountFrame,
-    Downsample,
-)
-from .._utils import aedat_to_events
-import os
-from tqdm import tqdm
-import glob
-
 
 mapping = {
     0: "Hand Clapping",
@@ -247,7 +248,7 @@ class DVSGesture(NeuromorphicDataset):
 
     def _download(self):
         try:
-            _ = super(DVSGesture, self)._download()
+            _ = super()._download()
         except Exception as e:
             print(e.message, e.args)
 
@@ -389,7 +390,7 @@ def gather_aedat(
 ):
     if not os.path.isdir(directory):
         raise FileNotFoundError(
-            "DVS Gestures Dataset not found, looked at: {}".format(directory)
+            f"DVS Gestures Dataset not found, looked at: {directory}"
         )
 
     fns = []
@@ -398,7 +399,7 @@ def gather_aedat(
             extracted_directory
             + "/"
             + filename_prefix
-            + "{0:02d}".format(i)
+            + f"{i:02d}"
             + "*.aedat"
         )
         glob_out = glob.glob(search_mask)

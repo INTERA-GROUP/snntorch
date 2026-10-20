@@ -3,8 +3,9 @@
 """Tests for the DeltaLeaky neuron."""
 
 import pytest
-from snntorch._neurons.deltaleaky import DeltaLeaky
 import torch
+
+from snntorch._neurons.deltaleaky import DeltaLeaky
 
 
 @pytest.fixture(scope="module")

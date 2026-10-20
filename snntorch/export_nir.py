@@ -1,16 +1,13 @@
 #from typing import Optional
-from typing import Optional, Tuple, Union
-import torch
-import os
-import sys
 import nir
-import numpy as np
 import nirtorch
+import numpy as np
+import torch
+
 import snntorch as snn
 
 
-
-def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
+def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
     """Convert a single snnTorch module to the equivalent object in the Neuromorphic
     Intermediate Representation (NIR). This function is used internally by the export_to_nir
     function to convert each submodule/layer of the network to the NIR.
@@ -39,7 +36,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
             groups=module.groups,
         )
     """
-    #modifiying bias of the conv2d layer extraction 
+    #modifiying bias of the conv2d layer extraction
     if isinstance(module, torch.nn.Conv2d):
         return nir.Conv2d(
             input_shape=None,
@@ -52,7 +49,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> Optional[nir.NIRNode]:
             bias=(
                 module.bias.detach()
                 if isinstance(module.bias, torch.Tensor)
-                else torch.zeros((module.weight.shape[0]))
+                else torch.zeros(module.weight.shape[0])
             ),
         )
     elif isinstance(module, torch.nn.AvgPool2d):

@@ -4,8 +4,9 @@
 neuron generators")."""
 
 import pytest
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 def _leaky_update(states, inp):

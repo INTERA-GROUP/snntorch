@@ -1,13 +1,13 @@
-import os
-import torch
-import torch.utils.data as data
-from ._transforms import Compose
-from tqdm import tqdm
-import tarfile
-import zipfile
 import gzip
 import hashlib
+import os
+import tarfile
+import zipfile
 
+import torch.utils.data as data
+from tqdm import tqdm
+
+from ._transforms import Compose
 
 # Adapted from https://github.com/nmi-lab/torchneuromorphic
 # by Emre Neftci and Clemens Schaefer
@@ -85,7 +85,7 @@ def download_url(url, root, filename=None, md5=None, total_size=None):
                 urllib.request.urlretrieve(
                     url, fpath, reporthook=gen_bar_updater()
                 )
-        except (urllib.error.URLError, IOError) as e:
+        except (OSError, urllib.error.URLError) as e:
             if url[:5] == "https":
                 url = url.replace("https:", "http:")
                 print(
@@ -119,7 +119,7 @@ def download_and_extract_archive(
     download_url(url, download_root, filename, md5)
 
     archive = os.path.join(download_root, filename)
-    print("Extracting {} to {}".format(archive, extract_root))
+    print(f"Extracting {archive} to {extract_root}")
     _extract_archive(archive, extract_root, remove_finished)
 
 
@@ -153,8 +153,8 @@ class NeuromorphicDataset(data.Dataset):
                     self._create_hdf5()  #
                 else:
                     raise Exception(
-                        "File {} does not exist and download_and_create "
-                        "is False".format(root)
+                        f"File {root} does not exist and download_and_create "
+                        "is False"
                     )
 
         has_transforms = transforms is not None
@@ -188,9 +188,9 @@ class NeuromorphicDataset(data.Dataset):
 
     def __repr__(self):
         head = "Dataset " + self.__class__.__name__
-        body = ["Number of datapoints: {}".format(self.__len__())]
+        body = [f"Number of datapoints: {self.__len__()}"]
         if self.root is not None:
-            body.append("Root location: {}".format(self.root))
+            body.append(f"Root location: {self.root}")
         body += self.extra_repr().splitlines()
         if hasattr(self, "transforms") and self.transforms is not None:
             body += [repr(self.transforms)]
@@ -199,7 +199,7 @@ class NeuromorphicDataset(data.Dataset):
 
     def _format_transform_repr(self, transform, head):
         lines = transform.__repr__().splitlines()
-        return ["{}{}".format(head, lines[0])] + [
+        return [f"{head}{lines[0]}"] + [
             "{}{}".format(" " * len(head), line) for line in lines[1:]
         ]
 
@@ -225,7 +225,7 @@ class NeuromorphicDataset(data.Dataset):
                 archive = os.path.join(extract_root, filename).replace(
                     "\\", "/"
                 )
-                print("Extracting {} to {}...".format(archive, extract_root))
+                print(f"Extracting {archive} to {extract_root}...")
                 _extract_archive(archive, extract_root, remove_finished=False)
         return res
 
@@ -350,13 +350,13 @@ def _extract_archive(from_path, to_path=None, remove_finished=False):
         with zipfile.ZipFile(from_path, "r") as z:
             z.extractall(to_path)
     else:
-        raise ValueError("Extraction of {} not supported".format(from_path))
+        raise ValueError(f"Extraction of {from_path} not supported")
 
     if remove_finished:
         os.remove(from_path)
 
 
-class StandardTransform(object):
+class StandardTransform:
     def __init__(self, transform=None, target_transform=None):
         self.transform = transform
         self.target_transform = target_transform
@@ -370,7 +370,7 @@ class StandardTransform(object):
 
     def _format_transform_repr(self, transform, head):
         lines = transform.__repr__().splitlines()
-        return ["{}{}".format(head, lines[0])] + [
+        return [f"{head}{lines[0]}"] + [
             "{}{}".format(" " * len(head), line) for line in lines[1:]
         ]
 

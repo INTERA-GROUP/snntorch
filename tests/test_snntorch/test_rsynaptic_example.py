@@ -2,8 +2,9 @@
 
 from textwrap import dedent
 
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 def test_rsynaptic_documentation_example_runs_and_backpropagates():

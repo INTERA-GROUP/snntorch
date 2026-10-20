@@ -5,10 +5,11 @@
 import nir
 import numpy as np
 import pytest
+import torch
+
 import snntorch as snn
 from snntorch.export_nir import export_to_nir
 from snntorch.import_nir import import_from_nir
-import torch
 
 
 # sample data for snntorch_sequential
@@ -25,7 +26,7 @@ def sample_data2():
 
 class NetWithAvgPool(torch.nn.Module):
     def __init__(self):
-        super(NetWithAvgPool, self).__init__()
+        super().__init__()
         self.conv1 = torch.nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1)
         self.pool = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         self.flatten = torch.nn.Flatten()

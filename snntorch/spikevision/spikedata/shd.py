@@ -9,22 +9,23 @@
 
 # import struct
 # import time
-import numpy as np
 import h5py
+import numpy as np
+
+from .._transforms import (
+    Compose,
+    Downsample,
+    Repeat,
+    ToChannelHeightWidth,
+    ToCountFrame,
+    ToTensor,
+    hflip,
+    toOneHot,
+)
+from ..events_timeslices import get_tmad_slice
 
 # import torch.utils.data
 from ..neuromorphic_dataset import NeuromorphicDataset
-from ..events_timeslices import get_tmad_slice
-from .._transforms import (
-    toOneHot,
-    Repeat,
-    Compose,
-    hflip,
-    ToTensor,
-    ToCountFrame,
-    ToChannelHeightWidth,
-    Downsample,
-)
 
 # import os
 
@@ -302,7 +303,7 @@ class SHD(NeuromorphicDataset):
     def _download(self):
         # isexisting = super(SHD, self)._download()
         try:
-            _ = super(SHD, self)._download()
+            _ = super()._download()
         except Exception as e:
             print(e.message, e.args)
 

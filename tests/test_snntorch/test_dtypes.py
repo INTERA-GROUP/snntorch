@@ -4,9 +4,10 @@
 gradients (issues #421 and #422)."""
 
 import pytest
+import torch
+
 import snntorch as snn
 from snntorch import surrogate
-import torch
 
 DTYPES = [torch.float32, torch.float64]
 

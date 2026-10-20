@@ -1,8 +1,6 @@
-import pytest
-import snntorch as snn
-import torch
 import torch.nn as nn
 
+import snntorch as snn
 
 # class Net(nn.Module):
 #     def __init__(self):

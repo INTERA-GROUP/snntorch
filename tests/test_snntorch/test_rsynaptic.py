@@ -3,9 +3,10 @@
 """Tests for RSynaptic neuron."""
 
 import pytest
-import snntorch as snn
 import torch
 import torch._dynamo as dynamo
+
+import snntorch as snn
 
 
 @pytest.fixture(scope="module")

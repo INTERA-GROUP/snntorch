@@ -1219,7 +1219,7 @@ def target_rate_code(
                     # torch.ones((num_steps - first_spike_time),
                     # device=device) * rate,
                     torch.zeros((first_spike_time)),
-                    torch.ones((num_steps - first_spike_time)) * rate,
+                    torch.ones(num_steps - first_spike_time) * rate,
                 )
             )
         )
@@ -1266,7 +1266,7 @@ def rate_interpolate(
 
     # if no spikes
     if not spike_time.numel():
-        return torch.ones((num_steps)) * off_target
+        return torch.ones(num_steps) * off_target
 
     current_time = -1
 

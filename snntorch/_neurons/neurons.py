@@ -1,9 +1,10 @@
 import math
 from warnings import warn
-from snntorch.surrogate import atan
+
 import torch
 import torch.nn as nn
 
+from snntorch.surrogate import atan
 
 __all__ = [
     "SpikingNeuron",

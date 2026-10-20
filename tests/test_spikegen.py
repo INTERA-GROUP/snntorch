@@ -2,9 +2,9 @@
 
 
 import pytest
-import snntorch as snn
-from snntorch import spikegen
 import torch
+
+from snntorch import spikegen
 
 
 def input_(a):

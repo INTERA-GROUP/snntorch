@@ -155,7 +155,7 @@ class LeakyKernel(nn.Module):
         device=None,
         dtype=None,
     ):
-        super(LeakyKernel, self).__init__()
+        super().__init__()
 
         # take in a data sample of size T x B x Dims
 

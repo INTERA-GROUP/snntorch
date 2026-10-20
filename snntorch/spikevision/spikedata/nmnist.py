@@ -9,26 +9,28 @@
 # import struct
 # import time
 # import copy
-import numpy as np
+import glob
+import os
+
 import h5py
+import numpy as np
+from tqdm import tqdm
+
+from .._transforms import (
+    Compose,
+    CropDims,
+    Downsample,
+    Repeat,
+    ToCountFrame,
+    ToTensor,
+    dvs_permute,
+    toOneHot,
+)
+from .._utils import load_ATIS_bin
+from ..events_timeslices import get_tmad_slice
 
 # import torch.utils.data
 from ..neuromorphic_dataset import NeuromorphicDataset
-from ..events_timeslices import get_tmad_slice
-from .._transforms import (
-    toOneHot,
-    Repeat,
-    Compose,
-    dvs_permute,
-    ToTensor,
-    Downsample,
-    CropDims,
-    ToCountFrame,
-)
-import os
-from .._utils import load_ATIS_bin
-from tqdm import tqdm
-import glob
 
 mapping = {
     0: "0",
@@ -245,7 +247,7 @@ class NMNIST(NeuromorphicDataset):
     def _download(self):
         # isexisting = super(NMNIST, self)._download()
         try:
-            _ = super(NMNIST, self)._download()
+            _ = super()._download()
         except Exception as e:
             print(e.message, e.args)
 
@@ -368,17 +370,17 @@ def nmnist_load_events_from_bin(file_path, max_duration=None):
 def nmnist_get_file_names(dataset_path):
     if not os.path.isdir(dataset_path):
         raise FileNotFoundError(
-            "N-MNIST Dataset not found, looked at: {}".format(dataset_path)
+            f"N-MNIST Dataset not found, looked at: {dataset_path}"
         )
 
     train_files = []
     test_files = []
     for digit in range(10):
         digit_train = glob.glob(
-            os.path.join(dataset_path, "Train/{}/*.bin".format(digit))
+            os.path.join(dataset_path, f"Train/{digit}/*.bin")
         )
         digit_test = glob.glob(
-            os.path.join(dataset_path, "Test/{}/*.bin".format(digit))
+            os.path.join(dataset_path, f"Test/{digit}/*.bin")
         )
         train_files.append(digit_train)
         test_files.append(digit_test)

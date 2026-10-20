@@ -24,12 +24,14 @@ Coverage:
 - Gradient computation with dropout
 """
 
+import random
+
 import numpy as np
 import pytest
-import random
-import snntorch as snn
 import torch
 import torch.nn as nn
+
+import snntorch as snn
 
 
 @pytest.fixture(scope="module")

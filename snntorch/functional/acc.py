@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 
 def accuracy_rate(spk_out, targets, population_code=False, num_classes=False):

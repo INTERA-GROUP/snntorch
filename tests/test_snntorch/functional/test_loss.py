@@ -3,9 +3,9 @@
 """Tests for Loss."""
 
 import pytest
-import snntorch as snn
-import snntorch.functional as sf
 import torch
+
+import snntorch.functional as sf
 
 torch.manual_seed(42)
 tolerance = 1e-5

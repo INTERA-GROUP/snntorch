@@ -6,8 +6,9 @@ SpikingNeuron and inherited by every neuron model (issue #37)."""
 import math
 
 import pytest
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 class TestHomeostasis:

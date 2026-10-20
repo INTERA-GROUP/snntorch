@@ -26,25 +26,19 @@ __neuron__ = [
     "gen2",
 ]
 
-from .neurons import SpikingNeuron
-from .neurons import LIF
 from .alpha import Alpha
+from .associative import AssociativeLeaky
+from .customneuron import CustomNeuron, neuron_from_equations
 from .deltaleaky import DeltaLeaky
 from .lapicque import Lapicque
 from .leaky import Leaky
+from .leakyparallel import LeakyParallel
 from .linearleaky import LinearLeaky
-from .stateleaky import StateLeaky
-from .associative import AssociativeLeaky
-from .synaptic import Synaptic
-
+from .neurons import LIF, SpikingNeuron
 from .rleaky import RLeaky
 from .rsynaptic import RSynaptic
-
 from .sconv2dlstm import SConv2dLSTM
 from .slstm import SLSTM
-
-from .leakyparallel import LeakyParallel
-
-from .customneuron import CustomNeuron
-from .customneuron import neuron_from_equations
+from .stateleaky import StateLeaky
+from .synaptic import Synaptic
 from .synapticdelay import SynapticDelay

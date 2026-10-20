@@ -1,6 +1,8 @@
+from collections.abc import Callable
+from typing import Any
+
 import torch
 from torch import nn
-from typing import Callable, Any
 
 
 def unpack_len1_tuple(x: tuple or torch.Tensor):

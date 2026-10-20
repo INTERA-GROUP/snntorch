@@ -3,8 +3,9 @@
 """Tests for Batch Normalization Through Time."""
 
 import pytest
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 @pytest.fixture(scope="module")

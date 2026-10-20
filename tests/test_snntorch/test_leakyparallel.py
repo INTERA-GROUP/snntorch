@@ -3,8 +3,9 @@
 """Tests for LeakyParallel neuron."""
 
 import pytest
-import snntorch as snn
 import torch
+
+import snntorch as snn
 
 
 class TestLeakyParallel:

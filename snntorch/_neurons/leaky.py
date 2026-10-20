@@ -1,6 +1,6 @@
-from .neurons import LIF
 import torch
-from torch import nn
+
+from .neurons import LIF
 
 
 class Leaky(LIF):

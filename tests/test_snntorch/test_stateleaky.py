@@ -1,8 +1,7 @@
+
 import pytest
 import torch
 import torch.nn as nn
-
-import os
 
 from snntorch._neurons.stateleaky import StateLeaky
 

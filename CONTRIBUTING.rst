@@ -75,14 +75,14 @@ Ready to contribute? Here's how to set up `snntorch` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests. In addition, ensure that your code is formatted using black::
+5. When you're done making changes, check that your changes pass ruff and the
+   tests. In addition, ensure that your code is formatted using ruff::
 
-    $ uv run flake8 snntorch tests
-    $ uv run black snntorch tests
+    $ uv run ruff check snntorch tests
+    $ uv run ruff format snntorch tests
     $ uv run pytest
 
-   The ``dev`` dependency group (installed by ``uv sync``) provides flake8, black, tox and the other development tools. After changing dependencies in ``pyproject.toml``, run ``uv lock`` and commit the updated ``uv.lock``. If you wish, you can add pre-commit hooks for both flake8 and black to make all formatting easier.
+   The ``dev`` dependency group (installed by ``uv sync``) provides ruff, tox and the other development tools. After changing dependencies in ``pyproject.toml``, run ``uv lock`` and commit the updated ``uv.lock``. If you wish, you can add pre-commit hooks to make all formatting easier.
 
 6. Commit your changes and push your branch to GitHub::
 

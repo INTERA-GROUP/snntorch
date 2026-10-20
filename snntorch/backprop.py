@@ -1,8 +1,9 @@
-import snntorch as snn
-import torch
-from snntorch import utils
-from snntorch import functional as SF
 from warnings import warn
+
+import torch
+
+import snntorch as snn
+from snntorch import utils
 
 warn(
     f"The module {__name__} will be deprecated in "
