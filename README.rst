@@ -133,6 +133,8 @@ To install snnTorch from source instead::
   $ cd snntorch
   $ pip install .
 
+For development, ``uv sync --all-extras`` creates a locked environment (see CONTRIBUTING).
+
 
 To install snntorch with conda::
 

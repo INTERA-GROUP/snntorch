@@ -64,11 +64,10 @@ Ready to contribute? Here's how to set up `snntorch` for local development.
 
     $ git clone git@github.com:your_name_here/snntorch.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy with `uv <https://docs.astral.sh/uv/>`_. This creates ``.venv`` with Python 3.11 (see ``.python-version``), the CPU build of torch, all optional extras and the development tools, exactly as pinned in ``uv.lock``::
 
-    $ mkvirtualenv snntorch
     $ cd snntorch/
-    $ pip install -e ".[nir,plot,vision]" --group dev
+    $ uv sync --all-extras
 
 4. Create a branch for local development::
 
@@ -79,11 +78,11 @@ Ready to contribute? Here's how to set up `snntorch` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the
    tests. In addition, ensure that your code is formatted using black::
 
-    $ flake8 snntorch tests
-    $ black snntorch tests
-    $ pytest
+    $ uv run flake8 snntorch tests
+    $ uv run black snntorch tests
+    $ uv run pytest
 
-   The ``dev`` dependency group installs flake8, black, tox and the other development tools (this needs pip 25.1 or newer). If you wish, you can add pre-commit hooks for both flake8 and black to make all formatting easier.
+   The ``dev`` dependency group (installed by ``uv sync``) provides flake8, black, tox and the other development tools. After changing dependencies in ``pyproject.toml``, run ``uv lock`` and commit the updated ``uv.lock``. If you wish, you can add pre-commit hooks for both flake8 and black to make all formatting easier.
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -111,7 +110,7 @@ Tips
 
 To run a subset of tests::
 
-$ pytest tests.test_snntorch
+$ uv run pytest tests/test_snntorch.py
 
 
 Deploying
