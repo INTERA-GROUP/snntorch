@@ -48,6 +48,7 @@ htmlcov/
 nosetests.xml
 coverage.xml
 nir_model.nir
+testconv2d+avgpool.nir
 *.cover
 .hypothesis/
 .pytest_cache/
