@@ -53,6 +53,7 @@ sync: ## create/update the .venv with all extras and dev tools
 lint: ## check style with ruff
 	uv run ruff check snntorch tests
 	uv run ruff format --check snntorch tests
+	uv run mypy
 
 test: ## run tests quickly with the default Python
 	uv run pytest

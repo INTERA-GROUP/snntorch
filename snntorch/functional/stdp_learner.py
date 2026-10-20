@@ -1,5 +1,6 @@
 import math
 from collections.abc import Callable
+from typing import Any
 
 import torch
 import torch.nn as nn
@@ -140,6 +141,10 @@ def stdp_conv2d_single_step(
     stride_h = conv.stride[0]
     stride_w = conv.stride[1]
 
+    if isinstance(conv.padding, str):
+        raise NotImplementedError(
+            "STDP with string padding for Conv2d has not been implemented!"
+        )
     if conv.padding == (0, 0):
         pass
     else:
@@ -224,6 +229,10 @@ def stdp_conv1d_single_step(
 
     stride_l = conv.stride[0]
 
+    if isinstance(conv.padding, str):
+        raise NotImplementedError(
+            "STDP with string padding for Conv1d has not been implemented!"
+        )
     if conv.padding == (0,):
         pass
     else:
@@ -340,6 +349,7 @@ class STDPLearner(nn.Module):
         length = self.in_spike_monitor.records.__len__()
         delta_w = None
 
+        stdp_f: Any
         if isinstance(self.synapse, nn.Linear):
             stdp_f = stdp_linear_single_step
         elif isinstance(self.synapse, nn.Conv2d):
@@ -370,6 +380,8 @@ class STDPLearner(nn.Module):
             delta_w = dw if (delta_w is None) else (delta_w + dw)
 
         if on_grad:
+            if delta_w is None:
+                return None
             if self.synapse.weight.grad is None:
                 self.synapse.weight.grad = -delta_w
             else:

@@ -17,7 +17,7 @@ dtype = torch.float
 class SpikingNeuron(nn.Module):
     """Parent class for spiking neuron models."""
 
-    instances = []
+    instances: list["SpikingNeuron"] = []
     """Each :mod:`snntorch.SpikingNeuron` neuron
     (e.g., :mod:`snntorch.Synaptic`) will populate the
     :mod:`snntorch.SpikingNeuron.instances` list with a new entry.

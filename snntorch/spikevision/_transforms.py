@@ -7,6 +7,9 @@ import numpy as np
 import pandas as pd
 import torch
 
+# Re-exported: spikevision datasets import these names from this module.
+from torchvision.transforms import Compose, Lambda, Normalize  # noqa: F401
+
 
 def find_first(a, tgt):
     return bisect.bisect_left(a, tgt)

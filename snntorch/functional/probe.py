@@ -5,7 +5,7 @@ import torch
 from torch import nn
 
 
-def unpack_len1_tuple(x: tuple or torch.Tensor):
+def unpack_len1_tuple(x: tuple | torch.Tensor):
     if isinstance(x, tuple) and x.__len__() == 1:
         return x[0]
     else:
@@ -113,7 +113,7 @@ class OutputMonitor(BaseMonitor):
     def __init__(
         self,
         net: nn.Module,
-        instance: Any or tuple = None,
+        instance: Any = None,
         function_on_output: Callable = lambda x: x,
     ):
         super().__init__()
@@ -195,7 +195,7 @@ class InputMonitor(BaseMonitor):
     def __init__(
         self,
         net: nn.Module,
-        instance: Any or tuple = None,
+        instance: Any = None,
         function_on_input: Callable = lambda x: x,
     ):
         super().__init__()
@@ -289,7 +289,7 @@ class AttributeMonitor(BaseMonitor):
         attribute_name: str,
         pre_forward: bool,
         net: nn.Module,
-        instance: Any or tuple = None,
+        instance: Any = None,
         function_on_attribute: Callable = lambda x: x,
     ):
         super().__init__()
@@ -379,7 +379,7 @@ class GradInputMonitor(BaseMonitor):
     def __init__(
         self,
         net: nn.Module,
-        instance: Any or tuple = None,
+        instance: Any = None,
         function_on_grad_input: Callable = lambda x: x,
     ):
         super().__init__()
@@ -468,7 +468,7 @@ class GradOutputMonitor(BaseMonitor):
     def __init__(
         self,
         net: nn.Module,
-        instance: Any or tuple = None,
+        instance: Any = None,
         function_on_grad_output: Callable = lambda x: x,
     ):
         super().__init__()

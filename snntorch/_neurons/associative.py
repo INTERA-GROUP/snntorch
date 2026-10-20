@@ -81,6 +81,7 @@ class AssociativeLeaky(SpikingNeuron):
         self.to_alpha = nn.Linear(in_dim, d_key)  # (T,B,in_dim) -> (T,B,n)
 
         # q projection is optional
+        self.to_q: nn.Linear | None
         if self.use_q_projection:
             # q projects into "neuron space": flattened (n × d) = num_spiking_neurons
             self.to_q = nn.Linear(
@@ -152,7 +153,7 @@ class AssociativeLeaky(SpikingNeuron):
         alpha = torch.sigmoid(self.to_alpha(x))  # (T,B,n)
 
         # optional q projection
-        if self.use_q_projection:
+        if self.to_q is not None:
             q_flat = self.to_q(x)  # (T,B,N_spike) = (T,B,d*n)
         else:
             q_flat = None

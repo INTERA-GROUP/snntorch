@@ -116,6 +116,10 @@ def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
     elif isinstance(module, snn.RLeaky):
         if module.all_to_all:
             w_rec = _extract_snntorch_module(module.recurrent)
+            if w_rec is None:
+                raise ValueError(
+                    f"Cannot export the recurrent module of {type(module).__name__} to NIR."
+                )
             if hasattr(w_rec, "weight"):
                 n_neurons = w_rec.weight.shape[0]
             else:
@@ -165,6 +169,10 @@ def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
     elif isinstance(module, snn.RSynaptic):
         if module.all_to_all:
             w_rec = _extract_snntorch_module(module.recurrent)
+            if w_rec is None:
+                raise ValueError(
+                    f"Cannot export the recurrent module of {type(module).__name__} to NIR."
+                )
             n_neurons = w_rec.weight.shape[0]
         else:
             if len(module.recurrent.V.shape) == 0:

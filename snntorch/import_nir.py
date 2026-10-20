@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import partial
+from typing import Any
 
 import nir
 import nirtorch
@@ -152,7 +153,7 @@ def _parse_rnn_subgraph(graph: nir.NIRGraph) -> (nir.NIRNode, nir.NIRNode, int):
 
 def _nir_to_snntorch_module(
     node: nir.NIRNode, dt, hack_w_scale=True, init_hidden=False
-) -> torch.nn.Module:
+) -> torch.nn.Module | None:
     """Convert a NIR node to a snnTorch module. This function is used by the import_from_nir function.
 
     :param node: NIR node
@@ -165,8 +166,9 @@ def _nir_to_snntorch_module(
     :type init_hidden: bool
 
     :return: snnTorch module
-    :rtype: torch.nn.Module
+    :rtype: torch.nn.Module or None
     """
+    mod: Any
     if isinstance(node, nir.Input) or isinstance(node, nir.Output):
         return None
 
@@ -189,7 +191,7 @@ def _nir_to_snntorch_module(
         mod = torch.nn.Conv2d(
             node.weight.shape[1],
             node.weight.shape[0],
-            kernel_size=[*node.weight.shape[-2:]],
+            kernel_size=(int(node.weight.shape[-2]), int(node.weight.shape[-1])),
             stride=node.stride,
             padding=node.padding,
             dilation=node.dilation,
@@ -432,6 +434,8 @@ def _nir_to_snntorch_module(
     else:
         print("[WARNING] could not parse node of type:", node.__class__.__name__)
         return None
+
+    return None
 
 
 def import_from_nir(graph: nir.NIRGraph, dt: float = 1e-4) -> torch.nn.Module:

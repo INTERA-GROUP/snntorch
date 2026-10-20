@@ -53,6 +53,7 @@ test = [
 ]
 lint = [
     "ruff",
+    "mypy",
     "pre-commit",
 ]
 docs = [
@@ -91,8 +92,35 @@ explicit = true
 [tool.setuptools.packages.find]
 include = ["snntorch", "snntorch.*"]
 
+[tool.setuptools.package-data]
+snntorch = ["py.typed"]
+
 [tool.setuptools.dynamic]
 version = { attr = "snntorch._version.__version__" }
+
+[tool.mypy]
+python_version = "3.11"
+files = ["snntorch"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+# Lenient start: functions without annotations are not checked. Tighten
+# per module (disallow_untyped_defs, check_untyped_defs) as typing grows.
+
+[[tool.mypy.overrides]]
+module = [
+    "nir.*",
+    "nirtorch.*",
+    "h5py.*",
+    "pandas.*",
+    "tqdm.*",
+    "six.*",
+    "pylab.*",
+    "dv.*",
+    "importRosbag.*",
+    "torchvision.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
