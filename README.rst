@@ -108,17 +108,14 @@ PyTorch should be installed to use snnTorch. Ensure the correct version of torch
 
 The following packages are automatically installed if using the pip command:
 
+* torch
 * numpy
-* pandas
 
-The following packages are required for using `export_nir` and `import_nir`:
+Optional features are installed through extras, e.g. ``pip install "snntorch[nir,plot]"``:
 
-* nir>=1.0.6
-* nirtorch>=2.0.5
-
-The following packages are required for using `spikeplot`:
-
-* matplotlib
+* ``nir``: nir>=1.0.6 and nirtorch>=2.0.5, required for `export_nir` and `import_nir`
+* ``plot``: matplotlib and pandas, required for `spikeplot`
+* ``vision``: torchvision, h5py, tqdm, pandas and matplotlib, required for the deprecated `spikevision` and the dataset helpers in `utils`
 
 Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -134,7 +131,7 @@ To install snnTorch from source instead::
 
   $ git clone https://github.com/jeshraghian/snnTorch
   $ cd snntorch
-  $ python setup.py install
+  $ pip install .
 
 
 To install snntorch with conda::

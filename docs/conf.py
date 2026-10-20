@@ -5,9 +5,14 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 
-# fmt: off
-__version__ = '1.0.0'
-# fmt: on
+# Read the version without importing snntorch (which would require torch).
+_version_ns = {}
+with open(
+    os.path.join(os.path.dirname(__file__), "..", "snntorch", "_version.py"),
+    encoding="utf-8",
+) as _f:
+    exec(_f.read(), _version_ns)
+__version__ = _version_ns["__version__"]
 
 
 # -- General configuration ---------------------------------------------

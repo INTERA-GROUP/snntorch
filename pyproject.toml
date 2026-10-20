@@ -1,2 +1,86 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snntorch"
+dynamic = ["version"]
+description = "Deep learning with spiking neural networks."
+readme = "README.rst"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jason K. Eshraghian", email = "jeshragh@ucsc.edu" }]
+keywords = ["snntorch", "spiking neural networks", "pytorch"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "torch",
+    "numpy",
+]
+
+[project.optional-dependencies]
+# snntorch.export_nir, snntorch.import_nir
+nir = ["nir>=1.0.6", "nirtorch>=2.0.5"]
+# snntorch.spikeplot
+plot = ["matplotlib", "pandas"]
+# snntorch.spikevision (deprecated) and the dataset helpers in snntorch.utils
+vision = ["torchvision", "h5py", "tqdm", "pandas", "matplotlib"]
+
+[project.urls]
+Homepage = "https://github.com/jeshraghian/snntorch"
+Documentation = "https://snntorch.readthedocs.io"
+Fork = "https://github.com/INTERA-GROUP/snntorch"
+
+[dependency-groups]
+test = [
+    "pytest>=8",
+    "coverage>=7",
+]
+lint = [
+    "black",
+    "flake8",
+    "pre-commit",
+]
+docs = [
+    "sphinx>=7.1",
+    "sphinx-rtd-theme",
+    "watchdog",
+    "celluloid",
+]
+release = [
+    "build",
+    "twine",
+]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "docs" },
+    { include-group = "release" },
+    "tox",
+]
+
+[tool.setuptools.packages.find]
+include = ["snntorch", "snntorch.*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "snntorch._version.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.black]
 line-length = 79

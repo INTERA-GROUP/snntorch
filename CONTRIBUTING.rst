@@ -68,7 +68,7 @@ Ready to contribute? Here's how to set up `snntorch` for local development.
 
     $ mkvirtualenv snntorch
     $ cd snntorch/
-    $ python setup.py develop
+    $ pip install -e ".[nir,plot,vision]" --group dev
 
 4. Create a branch for local development::
 
@@ -81,9 +81,9 @@ Ready to contribute? Here's how to set up `snntorch` for local development.
 
     $ flake8 snntorch tests
     $ black snntorch tests
-    $ python setup.py test or pytest
+    $ pytest
 
-   To get flake8, black and tox, just pip install them into your virtualenv. If you wish, you can add pre-commit hooks for both flake8 and black to make all formatting easier.
+   The ``dev`` dependency group installs flake8, black, tox and the other development tools (this needs pip 25.1 or newer). If you wish, you can add pre-commit hooks for both flake8 and black to make all formatting easier.
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -102,7 +102,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.9, 3.10, 3.11 and for PyPy. Check
+3. The pull request should work for Python 3.11, 3.12 and 3.13. Check
    https://github.com/jeshraghian/snntorch/actions
    and make sure that the tests pass for all supported Python versions.
 
@@ -121,7 +121,11 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
-$ bump2version patch # possible: major / minor / patch
+Update ``__version__`` in ``snntorch/_version.py`` (the single source of the
+package and docs version), then::
+
+$ git commit -am "Bump version to X.Y.Z"
+$ git tag X.Y.Z
 $ git push
 $ git push --tags
 
