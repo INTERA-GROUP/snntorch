@@ -135,8 +135,10 @@ def _parse_rnn_subgraph(graph: nir.NIRGraph) -> (nir.NIRNode, nir.NIRNode, int):
         output_node = [n for n in sub_nodes if isinstance(n, nir.Output)][0]
         lif_node = [n for n in sub_nodes if isinstance(n, (nir.LIF, nir.CubaLIF))][0]
         wrec_node = [n for n in sub_nodes if isinstance(n, (nir.Affine, nir.Linear))][0]
-    except IndexError:
-        raise ValueError("invalid RNN subgraph - could not find all required nodes")
+    except IndexError as err:
+        raise ValueError(
+            "invalid RNN subgraph - could not find all required nodes"
+        ) from err
     lif_size = list(input_node.input_type.values())[0][0]
     assert lif_size == list(output_node.output_type.values())[0][0], (
         "output size mismatch"

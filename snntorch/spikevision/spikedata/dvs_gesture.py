@@ -339,7 +339,7 @@ def create_events_hdf5(directory, extracted_directory, hdf5_filename):
             # end_tms = labels_starttime[:, 2]
             # out = []
 
-            for i, v in enumerate(lbls):
+            for i, _v in enumerate(lbls):
                 if istrain:
                     train_keys.append(key)
                 else:

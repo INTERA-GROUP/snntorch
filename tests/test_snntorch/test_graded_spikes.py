@@ -53,7 +53,7 @@ class TestLeaky:
         out = graded_spikes_instance(input_)
         loss_start = loss_function(out, label_)
 
-        for i in range(100):
+        for _i in range(100):
             out = graded_spikes_instance(input_)
             loss = loss_function(out, label_)
             optimizer.zero_grad()

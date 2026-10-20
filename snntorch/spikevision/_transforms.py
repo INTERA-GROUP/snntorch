@@ -192,9 +192,9 @@ class ToCountFrame:
     (T x C x H x W) in the range [0., 1., ...]
     """
 
-    def __init__(self, T=500, size=[2, 32, 32]):
+    def __init__(self, T=500, size=(2, 32, 32)):
         self.T = T
-        self.size = size
+        self.size = list(size)
         self.ndim = len(size)
 
     def __call__(self, tmad):
@@ -226,9 +226,9 @@ class ToEventSum:
     (C x H x W) in the range [0., 1., ...]
     """
 
-    def __init__(self, T=500, size=[2, 32, 32]):
+    def __init__(self, T=500, size=(2, 32, 32)):
         self.T = T
-        self.size = size
+        self.size = list(size)
         self.ndim = len(size)
 
     def __call__(self, tmad):

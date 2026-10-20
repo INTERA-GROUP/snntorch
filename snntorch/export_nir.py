@@ -232,8 +232,8 @@ def export_to_nir(
     module: torch.nn.Module,
     sample_data: torch.Tensor,
     model_name: str = "snntorch",
-    model_fwd_args=[],
-    ignore_dims=[],
+    model_fwd_args=None,
+    ignore_dims=None,
 ) -> nir.NIRNode:
     """Convert an snnTorch module to the Neuromorphic Intermediate Representation (NIR).
     This function uses nirtorch to extract the computational graph of the torch module,
@@ -281,6 +281,10 @@ def export_to_nir(
     :return: return the NIR graph
     :rtype: nir.NIRNode
     """
+    if model_fwd_args is None:
+        model_fwd_args = []
+    if ignore_dims is None:
+        ignore_dims = []
     nir_graph = nirtorch.extract_nir_graph(
         module,
         _extract_snntorch_module,

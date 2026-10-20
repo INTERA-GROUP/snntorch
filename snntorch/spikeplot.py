@@ -402,7 +402,7 @@ class _GridShader:
         start = locs[1 - int(self.sf) :: 2]
         end = locs[2 - int(self.sf) :: 2]
 
-        for s, e in zip(start, end):
+        for s, e in zip(start, end, strict=False):
             self.spans.append(self.ax.axvspan(s, e, zorder=0, **self.kw))
 
 

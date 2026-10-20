@@ -51,7 +51,7 @@ class TestHomeostasis:
         lif.enable_homeostasis(increment=1.2, tau=25.0)
         mem = lif.init_leaky()
         rates = []
-        for t in range(200):
+        for _t in range(200):
             spk, mem = lif(x, mem)
             rates.append(spk.mean().item())
         early = sum(rates[:20]) / 20
@@ -65,7 +65,7 @@ class TestHomeostasis:
         lif_ctrl = snn.Leaky(beta=0.9)
         mem_c = lif_ctrl.init_leaky()
         rates_c = []
-        for t in range(200):
+        for _t in range(200):
             spk, mem_c = lif_ctrl(x, mem_c)
             rates_c.append(spk.mean().item())
         early_c = sum(rates_c[:20]) / 20

@@ -37,9 +37,9 @@ def cast_evs(evs):
 def get_subsampled_coordinates(evs, ds_h, ds_w):
     x_coords = evs[:, 1] // ds_w
     y_coords = evs[:, 2] // ds_h
-    if x_coords.dtype != np.int:
+    if x_coords.dtype != int:
         x_coords = x_coords.astype(int)
-    if y_coords.dtype != np.int:
+    if y_coords.dtype != int:
         y_coords = y_coords.astype(int)
     return x_coords, y_coords
 
@@ -59,11 +59,11 @@ def get_slice(times, addrs, start_time, end_time):
         idx_beg = find_first(times, start_time)
         idx_end = find_first(times[idx_beg:], end_time) + idx_beg
         return times[idx_beg:idx_end] - times[idx_beg], addrs[idx_beg:idx_end]
-    except IndexError:
-        raise IndexError("Empty batch found")
+    except IndexError as err:
+        raise IndexError("Empty batch found") from err
 
 
-def get_event_slice(times, addrs, start_time, T, size=[128, 128], ds=1, dt=1000):
+def get_event_slice(times, addrs, start_time, T, size=(128, 128), ds=1, dt=1000):
     try:
         idx_beg = find_first(times, start_time)
         idx_end = find_first(times[idx_beg:], start_time + T * dt) + idx_beg
@@ -76,8 +76,8 @@ def get_event_slice(times, addrs, start_time, T, size=[128, 128], ds=1, dt=1000)
             ds_w=ds,
             ds_h=ds,
         )
-    except IndexError:
-        raise IndexError("Empty batch found")
+    except IndexError as err:
+        raise IndexError("Empty batch found") from err
 
 
 def get_tmad_slice(times, addrs, start_time, T):
@@ -85,8 +85,8 @@ def get_tmad_slice(times, addrs, start_time, T):
         idx_beg = find_first(times, start_time)
         idx_end = find_first(times[idx_beg:], start_time + T) + idx_beg
         return np.column_stack([times[idx_beg:idx_end], addrs[idx_beg:idx_end]])
-    except IndexError:
-        raise IndexError("Empty batch found")
+    except IndexError as err:
+        raise IndexError("Empty batch found") from err
 
 
 def get_time_surface(evs, invtau=1e-6, size=(346, 260, 2)):
@@ -100,10 +100,10 @@ def get_time_surface(evs, invtau=1e-6, size=(346, 260, 2)):
     return a
 
 
-def chunk_evs_dvs(evs, deltat=1000, chunk_size=500, size=[304, 240], ds_w=1, ds_h=1):
+def chunk_evs_dvs(evs, deltat=1000, chunk_size=500, size=(304, 240), ds_w=1, ds_h=1):
     t_start = evs[0, 0]
     ts = range(t_start + chunk_size, t_start + chunk_size * deltat, deltat)
-    chunks = np.zeros([len(ts)] + size, dtype="int8")
+    chunks = np.zeros([len(ts), *size], dtype="int8")
     idx_start = 0
     idx_end = 0
     for i, t in enumerate(ts):
@@ -116,17 +116,17 @@ def chunk_evs_dvs(evs, deltat=1000, chunk_size=500, size=[304, 240], ds_w=1, ds_
     return chunks
 
 
-def frame_evs(times, addrs, deltat=1000, duration=500, size=[240], downsample=[1]):
+def frame_evs(times, addrs, deltat=1000, duration=500, size=(240,), downsample=(1,)):
     t_start = times[0]
     ts = range(t_start, t_start + duration * deltat, deltat)
-    chunks = np.zeros([len(ts)] + size, dtype="int8")
+    chunks = np.zeros([len(ts), *size], dtype="int8")
     idx_start = 0
     idx_end = 0
     for i, t in enumerate(ts):
         idx_end += find_first(times[idx_end:], t)
         if idx_end > idx_start:
             ee = addrs[idx_start:idx_end]
-            ev = [(ee[:, i] // d).astype(np.int) for i, d in enumerate(downsample)]
+            ev = [(ee[:, i] // d).astype(int) for i, d in enumerate(downsample)]
             np.add.at(chunks, tuple([i] + ev), 1)
         idx_start = idx_end
     return chunks
@@ -137,13 +137,13 @@ def chunk_evs_pol_dvs(
     addrs,
     deltat=1000,
     chunk_size=500,
-    size=[2, 304, 240],
+    size=(2, 304, 240),
     ds_w=1,
     ds_h=1,
 ):
     t_start = times[0]
     ts = range(t_start, t_start + chunk_size * deltat, deltat)
-    chunks = np.zeros([len(ts)] + size, dtype="int8")
+    chunks = np.zeros([len(ts), *size], dtype="int8")
     idx_start = 0
     idx_end = 0
     for i, t in enumerate(ts):
@@ -152,8 +152,8 @@ def chunk_evs_pol_dvs(
             ee = addrs[idx_start:idx_end]
             pol, x, y = (
                 ee[:, 2],
-                (ee[:, 0] // ds_w).astype(np.int),
-                (ee[:, 1] // ds_h).astype(np.int),
+                (ee[:, 0] // ds_w).astype(int),
+                (ee[:, 1] // ds_h).astype(int),
             )
             np.add.at(chunks, (i, pol, x, y), 1)
         idx_start = idx_end

@@ -50,7 +50,7 @@ class SpikingNeuron(nn.Module):
 
         if surrogate_disable:
             self.spike_grad = self._surrogate_bypass
-        elif spike_grad == None:
+        elif spike_grad is None:
             self.spike_grad = atan()
         else:
             self.spike_grad = spike_grad
@@ -208,6 +208,7 @@ class SpikingNeuron(nn.Module):
                 "Inhibition is an unstable feature that has only been tested "
                 "for dense (fully-connected) layers. Use with caution!",
                 UserWarning,
+                stacklevel=2,
             )
 
     def _reset_cases(self, reset_mechanism):

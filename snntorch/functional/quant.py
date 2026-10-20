@@ -170,7 +170,7 @@ def state_quant(
             upper_range = max_val - threshold  # levels above the threshold
 
             lower_percent = lower_range / overall_range  # percent +66 the threshold
-            upper_percent = upper_range / overall_range  # percent above the threshold
+            upper_range / overall_range  # percent above the threshold
 
             lower_bits = math.floor(
                 num_levels * lower_percent
@@ -205,7 +205,6 @@ def state_quant(
                 upper_room = upper_summation / upper_range
 
                 max_temp_sum = threshold
-                diff_store_val = []
                 # store_val.append(max_temp_sum)
                 for j in reversed(range(upper_bits)):
                     upper_curr = multiplier**j
@@ -233,7 +232,7 @@ def state_quant(
             upper_range = max_val - 0  # levels above the threshold
 
             lower_percent = lower_range / overall_range  # percent +66 the threshold
-            upper_percent = upper_range / overall_range  # percent above the threshold
+            upper_range / overall_range  # percent above the threshold
 
             lower_bits = math.floor(
                 num_levels * lower_percent
@@ -271,7 +270,6 @@ def state_quant(
                 upper_room = upper_summation / upper_range
 
                 max_temp_sum = 0
-                diff_store_val = []
                 # store_val.append(max_temp_sum)
                 for j in reversed(range(upper_bits)):
                     upper_curr = multiplier**j

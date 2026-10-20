@@ -124,7 +124,7 @@ class CustomNeuron(SpikingNeuron):
                     f"expected {len(self.state_names)} state tensor(s) "
                     f"{self.state_names}, got {len(states)}."
                 )
-            for name, s in zip(self.state_names, states):
+            for name, s in zip(self.state_names, states, strict=True):
                 setattr(self, name, s)
 
         self._lazy_init(input_)

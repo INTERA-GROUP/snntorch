@@ -76,7 +76,7 @@ def create_events_hdf5(directory, hdf5_filename):
         data_grp = f.create_group("data")
         extra_grp = f.create_group("extra")
         print("Creating shd.hdf5...")
-        for i, data in enumerate(tmad):
+        for i, _data in enumerate(tmad):
             # times = data[:, 0]
             # addrs = data[:, 1:]
             label = labels[i]

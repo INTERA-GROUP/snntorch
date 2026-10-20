@@ -251,15 +251,15 @@ def stdp_conv1d_single_step(
     trace_post = trace_post - trace_post / tau_post + out_spike
 
     delta_w = torch.zeros_like(conv.weight.data)
-    for l in range(conv.weight.shape[2]):
-        l_end = in_spike.shape[2] - conv.weight.shape[2] + 1 + l
+    for kl in range(conv.weight.shape[2]):
+        l_end = in_spike.shape[2] - conv.weight.shape[2] + 1 + kl
         pre_spike = in_spike[
-            :, :, l:l_end:stride_l
+            :, :, kl:l_end:stride_l
         ]  # shape = [batch_size, C_in, l_out]
         post_spike = out_spike  # shape = [batch_size, C_out, l_out]
-        weight = conv.weight.data[:, :, l]  # shape = [batch_size_out, C_in]
+        weight = conv.weight.data[:, :, kl]  # shape = [batch_size_out, C_in]
 
-        tr_pre = trace_pre[:, :, l:l_end:stride_l]  # shape = [batch_size, C_in, l_out]
+        tr_pre = trace_pre[:, :, kl:l_end:stride_l]  # shape = [batch_size, C_in, l_out]
         tr_post = trace_post  # shape = [batch_size, C_out, l_out]
 
         delta_w_pre = -(
@@ -271,7 +271,7 @@ def stdp_conv1d_single_step(
         delta_w_post = f_post(weight) * (
             tr_pre.unsqueeze(1) * post_spike.unsqueeze(2)
         ).permute([1, 2, 0, 3]).sum(dim=[2, 3])
-        delta_w[:, :, l] += delta_w_pre + delta_w_post
+        delta_w[:, :, kl] += delta_w_pre + delta_w_post
 
     return trace_pre, trace_post, delta_w
 

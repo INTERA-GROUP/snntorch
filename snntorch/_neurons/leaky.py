@@ -196,10 +196,10 @@ class Leaky(LIF):
 
     def forward(self, input_, mem=None):
 
-        if not mem == None:
+        if mem is not None:
             self.mem = mem
 
-        if self.init_hidden and not mem == None:
+        if self.init_hidden and mem is not None:
             raise TypeError(
                 "`mem` should not be passed as an argument while `init_hidden=True`"
             )

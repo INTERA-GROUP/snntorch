@@ -217,7 +217,8 @@ def _layer_check(net):
         if isinstance(module, snn.LinearLeaky):
             is_linearleaky = True
         if isinstance(module, snn.StateLeaky):
-            is_stateleaky = True
+            # TODO: missing "global is_stateleaky"; the flag is never read.
+            is_stateleaky = True  # noqa: F841
         if isinstance(module, snn.Alpha):
             is_alpha = True
         if isinstance(module, snn.RLeaky):

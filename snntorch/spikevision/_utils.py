@@ -92,7 +92,7 @@ def load_jaer(
         pshift = 11
         eventtypeshift = 31
     else:
-        raise ValueError("Unsupported camera: %s" % (camera))
+        raise ValueError(f"Unsupported camera: {camera}")
 
     if version == "dat":
         print("using the old .dat format")
@@ -160,18 +160,14 @@ def load_jaer(
     if debug > 0:
         try:
             print(
-                "read %i (~ %.2fM) AE events, duration= %.2fs"
-                % (
-                    len(timestamps),
-                    len(timestamps) / float(10**6),
-                    (timestamps[-1] - timestamps[0]) * td,
-                )
+                f"read {len(timestamps)} (~ {len(timestamps) / float(10**6):.2f}M) "
+                f"AE events, duration= {(timestamps[-1] - timestamps[0]) * td:.2f}s"
             )
             n = 5
-            print("showing first %i:" % (n))
+            print(f"showing first {n}:")
             print(
-                "timestamps: %s \nX-addr: %s\nY-addr: %s\npolarity: %s"
-                % (timestamps[0:n], xaddr[0:n], yaddr[0:n], pol[0:n])
+                f"timestamps: {timestamps[0:n]} \nX-addr: {xaddr[0:n]}\n"
+                f"Y-addr: {yaddr[0:n]}\npolarity: {pol[0:n]}"
             )
         except Exception as e:
             print("failed to print statistics")
@@ -271,7 +267,7 @@ def aedat_to_events(filename):
     labels = np.loadtxt(label_filename, skiprows=1, delimiter=",", dtype="uint32")
     events = []
     with open(filename, "rb") as f:
-        for i in range(5):
+        for _i in range(5):
             f.readline()
         while True:
             data_ev_head = f.read(28)

@@ -309,13 +309,13 @@ class RLeaky(LIF):
 
     def forward(self, input_, spk=None, mem=None):
 
-        if not spk == None:
+        if spk is not None:
             self.spk = spk
 
-        if not mem == None:
+        if mem is not None:
             self.mem = mem
 
-        if self.init_hidden and (not mem == None or not spk == None):
+        if self.init_hidden and (mem is not None or spk is not None):
             raise TypeError("When `init_hidden=True`,RLeaky expects 1 input argument.")
 
         if not self.spk.shape == input_.shape:

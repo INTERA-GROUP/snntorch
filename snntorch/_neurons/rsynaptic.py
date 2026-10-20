@@ -329,16 +329,16 @@ class RSynaptic(LIF):
         return self.reset_mem()
 
     def forward(self, input_, spk=None, syn=None, mem=None):
-        if not spk == None:
+        if spk is not None:
             self.spk = spk
 
-        if not syn == None:
+        if syn is not None:
             self.syn = syn
 
-        if not mem == None:
+        if mem is not None:
             self.mem = mem
 
-        if self.init_hidden and (not spk == None or not syn == None or not mem == None):
+        if self.init_hidden and (spk is not None or syn is not None or mem is not None):
             raise TypeError(
                 "When `init_hidden=True`, RSynaptic expects 1 input argument."
             )

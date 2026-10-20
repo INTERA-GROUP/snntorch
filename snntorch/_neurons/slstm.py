@@ -218,13 +218,13 @@ class SLSTM(SpikingNeuron):
         return self.reset_mem()
 
     def forward(self, input_, syn=None, mem=None):
-        if not syn == None:
+        if syn is not None:
             self.syn = syn
 
-        if not mem == None:
+        if mem is not None:
             self.mem = mem
 
-        if self.init_hidden and (not mem == None or not syn == None):
+        if self.init_hidden and (mem is not None or syn is not None):
             raise TypeError(
                 "`mem` or `syn` should not be passed as an argument while `init_hidden=True`"
             )

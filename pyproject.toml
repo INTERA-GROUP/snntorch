@@ -113,10 +113,6 @@ select = [
 ]
 ignore = [
     "E501",  # line length is left to `ruff format`; long docstrings stay as is
-    # Existing findings, enabled again once fixed in follow-up commits:
-    "E711",          # `== None` comparisons
-    "E741", "F841",  # ambiguous / unused variables
-    "B006", "B007", "B028", "B904", "B905", "UP031",
 ]
 
 [tool.ruff.lint.per-file-ignores]

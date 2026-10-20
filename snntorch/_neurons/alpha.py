@@ -150,17 +150,17 @@ class Alpha(LIF):
 
     def forward(self, input_, syn_exc=None, syn_inh=None, mem=None):
 
-        if not syn_exc == None:
+        if syn_exc is not None:
             self.syn_exc = syn_exc
 
-        if not syn_inh == None:
+        if syn_inh is not None:
             self.syn_inh = syn_inh
 
-        if not mem == None:
+        if mem is not None:
             self.mem = mem
 
         if self.init_hidden and (
-            not mem == None or not syn_exc == None or not syn_inh == None
+            mem is not None or syn_exc is not None or syn_inh is not None
         ):
             raise TypeError("When `init_hidden=True`, Alpha expects 1 input argument.")
 

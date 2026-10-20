@@ -143,9 +143,6 @@ class TestLeakyParallelDropouts:
         output1 = leakyparallel_dropout_instance(input_parallel)
         output2 = leakyparallel_dropout_instance(input_parallel)
 
-        # Outputs should be different (not identical) due to dropout randomness
-        outputs_different = not torch.allclose(output1, output2, atol=1e-6)
-
         # Outputs should be valid (non-negative)
         assert torch.all(output1 >= 0) and torch.all(output2 >= 0), (
             "dropout outputs should be valid (non-negative)"

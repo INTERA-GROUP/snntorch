@@ -175,6 +175,7 @@ class StateLeaky(LIF):
                 warn(
                     "StateLeaky: spike-related settings are unused when output=False (no spikes emitted).",
                     UserWarning,
+                    stacklevel=2,
                 )
 
         self.kernel_truncation_steps = kernel_truncation_steps

@@ -537,7 +537,7 @@ def create_projection(origin_name, target_name, affine_node, populations, delay)
 def get_conv2d_params(conv2d_node, post_node):
     input_shape = conv2d_node.input_type["input"]
     conv_weights = conv2d_node.weight.swapaxes(0, 1) * post_node.nir_w_scale
-    conv_weights = conv_weights.astype(np.int8)
+    conv_weights = conv_weights.astype(int)
     conv_params = {
         "in_height": input_shape[1],
         "in_width": input_shape[2],

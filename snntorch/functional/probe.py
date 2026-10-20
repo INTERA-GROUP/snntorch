@@ -33,7 +33,7 @@ class BaseMonitor:
 
     def clear_recorded_data(self):
         self.records.clear()
-        for k, v in self.name_records_index.items():
+        for _k, v in self.name_records_index.items():
             v.clear()
 
     def enable(self):

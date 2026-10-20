@@ -1257,7 +1257,7 @@ def rate_interpolate(spike_time, num_steps, on_target=1, off_target=0, epsilon=1
             current_time = step
 
     if torch.max(spike_time) < num_steps - 1:
-        for step in range(int(torch.max(spike_time).item()), num_steps - 1):
+        for _step in range(int(torch.max(spike_time).item()), num_steps - 1):
             interpolated_targets = torch.cat(
                 (interpolated_targets, torch.Tensor([off_target]))
             )
