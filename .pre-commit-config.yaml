@@ -1,12 +1,24 @@
 repos:
--   repo: https://github.com/psf/black
-    rev: 22.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.1
     hooks:
-    - id: black
-      language_version: python3
-# -   repo: https://github.com/pre-commit/pre-commit-hooks
-# -   repo: https://gitlab.com/pycqa/flake8
--   repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
+      - id: ruff-check
+        files: ^(snntorch|tests)/
+      - id: ruff-format
+        files: ^(snntorch|tests)/
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-    - id: flake8
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: \.(nir|ipynb|svg)$
+      - id: trailing-whitespace
+        exclude: \.(nir|ipynb|svg)$
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.9.1
+    hooks:
+      - id: nbstripout
