@@ -21,9 +21,7 @@ def causal_conv1d(input_tensor, kernel_tensor):
     flipped_kernel = torch.flip(kernel_tensor, dims=[-1])
 
     # perform convolution with the padded input (output length = num_steps length)
-    causal_conv_result = F.conv1d(
-        padded_input, flipped_kernel, groups=in_channels
-    )
+    causal_conv_result = F.conv1d(padded_input, flipped_kernel, groups=in_channels)
 
     return causal_conv_result
 
@@ -197,11 +195,7 @@ class StateLeaky(LIF):
         if not isinstance(beta, torch.Tensor):
             beta = torch.as_tensor(beta)
 
-        if (
-            beta.shape != (channels,)
-            and beta.shape != ()
-            and beta.shape != (1,)
-        ):
+        if beta.shape != (channels,) and beta.shape != () and beta.shape != (1,):
             raise ValueError(
                 f"Beta shape {beta.shape} must be either ({channels},) or (1,)"
             )
@@ -225,18 +219,14 @@ class StateLeaky(LIF):
             kernel_size = min(self.kernel_truncation_steps, num_steps)
 
         # time axis shape (1, 1, kernel_size)
-        time_steps = torch.arange(kernel_size, device=device).view(
-            1, 1, kernel_size
-        )
+        time_steps = torch.arange(kernel_size, device=device).view(1, 1, kernel_size)
         assert time_steps.shape == (1, 1, kernel_size)
 
         # single channel case
         if self.tau.shape == () or self.tau.shape == (1,):
             # tau is scalar, broadcast across channels
             tau = self.tau.to(device)
-            decay_filter = torch.exp(-time_steps / tau).expand(
-                channels, 1, kernel_size
-            )
+            decay_filter = torch.exp(-time_steps / tau).expand(channels, 1, kernel_size)
         else:
             # tau is (channels,), reshape to (channels, 1, 1) so it broadcasts correctly
             tau = self.tau.to(device).view(channels, 1, 1)

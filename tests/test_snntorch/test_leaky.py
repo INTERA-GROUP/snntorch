@@ -51,9 +51,7 @@ def leaky_hidden_reset_none_instance():
 
 @pytest.fixture(scope="module")
 def leaky_hidden_learn_graded_instance():
-    return snn.Leaky(
-        beta=0.5, init_hidden=True, learn_graded_spikes_factor=True
-    )
+    return snn.Leaky(beta=0.5, init_hidden=True, learn_graded_spikes_factor=True)
 
 
 class TestLeaky:
@@ -64,7 +62,6 @@ class TestLeaky:
         spk_rec = []
 
         for i in range(2):
-
             spk, mem = leaky_instance(input_[i], mem)
             mem_rec.append(mem)
             spk_rec.append(spk)

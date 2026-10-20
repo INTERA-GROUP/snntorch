@@ -33,9 +33,7 @@ class TestAcc:
     def test_accuracy_rate_population_code_dtype(self):
         # float64 inputs should not be downcast, which would lose
         # the ordering of close scores
-        spk_out = torch.tensor(
-            [[[1.00000002, 1.00000005]]], dtype=torch.float64
-        )
+        spk_out = torch.tensor([[[1.00000002, 1.00000005]]], dtype=torch.float64)
         targets = torch.tensor([1])
 
         pop_code = acc._population_code(spk_out, num_classes=2, num_outputs=2)

@@ -41,16 +41,12 @@ def synaptic_hidden_instance():
 
 @pytest.fixture(scope="module")
 def synaptic_hidden_reset_zero_instance():
-    return snn.Synaptic(
-        alpha=0.5, beta=0.5, init_hidden=True, reset_mechanism="zero"
-    )
+    return snn.Synaptic(alpha=0.5, beta=0.5, init_hidden=True, reset_mechanism="zero")
 
 
 @pytest.fixture(scope="module")
 def synaptic_hidden_reset_none_instance():
-    return snn.Synaptic(
-        alpha=0.5, beta=0.5, init_hidden=True, reset_mechanism="none"
-    )
+    return snn.Synaptic(alpha=0.5, beta=0.5, init_hidden=True, reset_mechanism="none")
 
 
 class TestSynaptic:
@@ -131,9 +127,7 @@ class TestSynaptic:
         with pytest.raises(TypeError):
             synaptic_hidden_instance(input_, input_)
 
-    def test_synaptic_compile_fullgraph(
-        self, synaptic_instance_surrogate, input_
-    ):
+    def test_synaptic_compile_fullgraph(self, synaptic_instance_surrogate, input_):
         explanation = dynamo.explain(synaptic_instance_surrogate)(input_[0])
 
         assert explanation.graph_break_count == 0

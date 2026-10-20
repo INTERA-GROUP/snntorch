@@ -28,9 +28,7 @@ class TestLeakyParallel:
         assert off_diag.abs().max().item() == 0.0
 
     def test_leakyparallel_length_one_beta_tensor(self):
-        lp = snn.LeakyParallel(
-            input_size=4, hidden_size=6, beta=torch.tensor([0.3])
-        )
+        lp = snn.LeakyParallel(input_size=4, hidden_size=6, beta=torch.tensor([0.3]))
         diag = torch.diagonal(lp.rnn.weight_hh_l0.detach())
         assert torch.allclose(diag, torch.full((6,), 0.3), atol=1e-6)
 
@@ -48,12 +46,8 @@ class TestLeakyParallel:
         run at the same (default) recurrent weights and this fails."""
         torch.manual_seed(0)
         x = torch.rand(8, 2, 4) * 3.0
-        a = snn.LeakyParallel(
-            input_size=4, hidden_size=6, beta=torch.full((6,), 0.05)
-        )
-        b = snn.LeakyParallel(
-            input_size=4, hidden_size=6, beta=torch.full((6,), 0.95)
-        )
+        a = snn.LeakyParallel(input_size=4, hidden_size=6, beta=torch.full((6,), 0.05))
+        b = snn.LeakyParallel(input_size=4, hidden_size=6, beta=torch.full((6,), 0.95))
         b.load_state_dict(a.state_dict())  # copy everything...
         b._beta_buffer(torch.full((6,), 0.95), learn_beta=False)
         b._beta_to_weight_hh()  # ...then set only b's recurrent weights from its beta

@@ -132,9 +132,7 @@ class TestNIR:
     """Test import and export from snnTorch to NIR."""
 
     def test_export_sequential(self, snntorch_sequential, sample_data):
-        nir_graph = export_to_nir(
-            snntorch_sequential, sample_data, ignore_dims=[0]
-        )
+        nir_graph = export_to_nir(snntorch_sequential, sample_data, ignore_dims=[0])
         assert nir_graph is not None
         assert set(nir_graph.nodes.keys()) == set(
             ["input", "output"] + [str(i) for i in range(4)]
@@ -159,9 +157,7 @@ class TestNIR:
         pytest.xfail("conv2d export currently unsupported")
 
     def test_export_recurrent(self, snntorch_recurrent, sample_data):
-        nir_graph = export_to_nir(
-            snntorch_recurrent, sample_data, ignore_dims=[0]
-        )
+        nir_graph = export_to_nir(snntorch_recurrent, sample_data, ignore_dims=[0])
         assert nir_graph is not None
         assert set(nir_graph.nodes.keys()) == set(
             ["input", "output", "0", "1.lif", "1.w_rec", "2", "3"]
@@ -186,9 +182,7 @@ class TestNIR:
         )
 
     def test_export_rleaky(self, snntorch_rleaky, sample_data):
-        nir_graph = export_to_nir(
-            snntorch_rleaky, sample_data, ignore_dims=[0]
-        )
+        nir_graph = export_to_nir(snntorch_rleaky, sample_data, ignore_dims=[0])
         assert nir_graph is not None
         assert set(nir_graph.nodes.keys()) == set(
             ["input", "output", "0", "1.lif", "1.w_rec", "2", "3"]
@@ -271,9 +265,7 @@ class TestNIR:
         x = torch.rand((4, 784))
         y_snn, state = snntorch_sequential(x)
         assert y_snn.shape == (4, 10)
-        nir_graph = export_to_nir(
-            snntorch_sequential, sample_data, ignore_dims=[0]
-        )
+        nir_graph = export_to_nir(snntorch_sequential, sample_data, ignore_dims=[0])
         net = import_from_nir(nir_graph)
         y_nir, state = net(x)
         if isinstance(y_nir, tuple):
@@ -285,9 +277,7 @@ class TestNIR:
         x = torch.rand((4, 784))
         y_snn, state = snntorch_rleaky(x)
         assert y_snn.shape == (4, 10)
-        nir_graph = export_to_nir(
-            snntorch_rleaky, sample_data, ignore_dims=[0]
-        )
+        nir_graph = export_to_nir(snntorch_rleaky, sample_data, ignore_dims=[0])
         net = import_from_nir(nir_graph)
         y_nir, state = net(x)
         assert y_nir.shape == (4, 10), y_nir.shape

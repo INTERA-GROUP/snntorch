@@ -32,9 +32,7 @@ def batchnormtt1d_instance():
 
 
 class TestBatchNormTT1d:
-    @pytest.mark.parametrize(
-        "time_steps, num_features", ([1, 1], [3, 2], [6, 3])
-    )
+    @pytest.mark.parametrize("time_steps, num_features", ([1, 1], [3, 2], [6, 3]))
     def test_batchnormtt1d_init(self, time_steps, num_features):
         batchnormtt1d_instance = snn.BatchNormTT1d(num_features, time_steps)
 
@@ -46,17 +44,13 @@ class TestBatchNormTT1d:
             assert module.affine
             assert module.bias is None
 
-    def test_batchnormtt1d_with_2d_input(
-        self, batchnormtt1d_instance, input2d_
-    ):
+    def test_batchnormtt1d_with_2d_input(self, batchnormtt1d_instance, input2d_):
         for step, batchnormtt1d_module in enumerate(batchnormtt1d_instance):
             out = batchnormtt1d_module(input2d_[step])
 
             assert out.shape == input2d_[step].shape
 
-    def test_batchnormtt1d_with_3d_input(
-        self, batchnormtt1d_instance, input3d_
-    ):
+    def test_batchnormtt1d_with_3d_input(self, batchnormtt1d_instance, input3d_):
         for step, batchnormtt1d_module in enumerate(batchnormtt1d_instance):
             out = batchnormtt1d_module(input3d_[step])
 
@@ -69,9 +63,7 @@ def batchnormtt2d_instance():
 
 
 class TestBatchNormTT2d:
-    @pytest.mark.parametrize(
-        "time_steps, num_features", ([1, 1], [3, 2], [6, 3])
-    )
+    @pytest.mark.parametrize("time_steps, num_features", ([1, 1], [3, 2], [6, 3]))
     def test_batchnormtt2d_init(self, time_steps, num_features):
         batchnormtt2d_instance = snn.BatchNormTT2d(num_features, time_steps)
 
@@ -83,9 +75,7 @@ class TestBatchNormTT2d:
             assert module.affine
             assert module.bias is None
 
-    def test_batchnormtt2d_with_4d_input(
-        self, batchnormtt2d_instance, input4d_
-    ):
+    def test_batchnormtt2d_with_4d_input(self, batchnormtt2d_instance, input4d_):
         for step, batchnormtt2d_module in enumerate(batchnormtt2d_instance):
             out = batchnormtt2d_module(input4d_[step])
 

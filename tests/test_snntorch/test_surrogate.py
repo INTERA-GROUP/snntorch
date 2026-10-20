@@ -28,9 +28,7 @@ class TestSigmoidSurrogate:
         # where the exponential form is stable, the rewritten gradient must
         # agree with slope * exp(-slope * u) / (exp(-slope * u) + 1) ** 2
         slope = 25
-        x = torch.linspace(
-            -0.5, 0.5, 101, dtype=torch.float64, requires_grad=True
-        )
+        x = torch.linspace(-0.5, 0.5, 101, dtype=torch.float64, requires_grad=True)
         spk = surrogate.sigmoid(slope=slope)(x)
         spk.sum().backward()
 

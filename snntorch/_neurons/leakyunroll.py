@@ -201,9 +201,7 @@ class LeakyParallel(nn.Module):
             self.rnn.weight_hh_l0.requires_grad_(False)
 
         self._threshold_buffer(threshold, learn_threshold)
-        self._graded_spikes_buffer(
-            graded_spikes_factor, learn_graded_spikes_factor
-        )
+        self._graded_spikes_buffer(graded_spikes_factor, learn_graded_spikes_factor)
 
         self.surrogate_disable = surrogate_disable
         if self.surrogate_disable:
@@ -285,9 +283,7 @@ class LeakyParallel(nn.Module):
             for item in self.input_size:
                 # Ensure each item in the tuple is an integer
                 if not isinstance(item, int):
-                    raise ValueError(
-                        "All elements in the tuple must be integers"
-                    )
+                    raise ValueError("All elements in the tuple must be integers")
                 product *= item
             return product
 
@@ -353,9 +349,7 @@ class LeakyParallel(nn.Module):
                 beta = torch.as_tensor([beta])  # TODO: or .tensor() if no copy
         self.register_buffer("beta", beta)
 
-    def _graded_spikes_buffer(
-        self, graded_spikes_factor, learn_graded_spikes_factor
-    ):
+    def _graded_spikes_buffer(self, graded_spikes_factor, learn_graded_spikes_factor):
         if not isinstance(graded_spikes_factor, torch.Tensor):
             graded_spikes_factor = torch.as_tensor(graded_spikes_factor)
         if learn_graded_spikes_factor:

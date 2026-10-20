@@ -48,18 +48,14 @@ class TestSynapticDelay:
         ds = snn.SynapticDelay(max_delay=6, delay=delay, channels=C)
         ds.reset_delay()
         step = torch.stack([ds(x[t]) for t in range(T)])
-        dq = snn.SynapticDelay(
-            max_delay=6, delay=delay, channels=C, step_mode=False
-        )
+        dq = snn.SynapticDelay(max_delay=6, delay=delay, channels=C, step_mode=False)
         seq = dq(x)
         assert torch.allclose(step, seq, atol=1e-6)
 
     def test_fractional_delay_interpolates(self):
         x = torch.zeros(10, 1, 1)
         x[1, 0, 0] = 1.0
-        d = snn.SynapticDelay(
-            max_delay=6, delay=2.25, step_mode=False, kernel="linear"
-        )
+        d = snn.SynapticDelay(max_delay=6, delay=2.25, step_mode=False, kernel="linear")
         out = d(x).squeeze()
         # impulse at t=1, delay 2.25 -> mass split across t=3 (0.75)
         # and t=4 (0.25)
@@ -106,9 +102,7 @@ class TestSynapticDelay:
         assert abs(g_analytic - g_fd) < 1e-4
 
     def test_gradient_flows_to_delay_and_input(self):
-        d = snn.SynapticDelay(
-            max_delay=6, delay=2.5, learn_delay=True, step_mode=False
-        )
+        d = snn.SynapticDelay(max_delay=6, delay=2.5, learn_delay=True, step_mode=False)
         x = torch.randn(12, 2, 3, requires_grad=True)
         d(x).pow(2).sum().backward()
         assert d.delay.grad is not None and torch.isfinite(d.delay.grad).all()
@@ -165,9 +159,7 @@ class TestSynapticDelay:
     def test_composes_with_leaky_step_mode(self):
         torch.manual_seed(0)
         fc = torch.nn.Linear(3, 5)
-        delay = snn.SynapticDelay(
-            max_delay=6, delay=2.0, channels=5, learn_delay=True
-        )
+        delay = snn.SynapticDelay(max_delay=6, delay=2.0, channels=5, learn_delay=True)
         lif = snn.Leaky(beta=0.9)
         mem = lif.init_leaky()
         delay.reset_delay()

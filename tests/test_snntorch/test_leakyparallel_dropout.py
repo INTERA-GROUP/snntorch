@@ -88,7 +88,6 @@ class TestLeakyParallelDropouts:
         # Check output is non-negative (spikes)
         assert torch.all(output >= 0)
 
-
     def test_leakyparallel_dropout_zero_deterministic(
         self, leakyparallel_instance, input_parallel
     ):
@@ -100,9 +99,9 @@ class TestLeakyParallelDropouts:
         output2 = leakyparallel_instance(input_parallel)
 
         # Outputs should be identical
-        assert torch.allclose(output1, output2), \
+        assert torch.allclose(output1, output2), (
             "dropout=0 should produce deterministic outputs"
-
+        )
 
     def test_leakyparallel_dropout_one_training(
         self, leakyparallel_dropout_one_instance, input_parallel
@@ -115,9 +114,9 @@ class TestLeakyParallelDropouts:
         # With dropout=1.0, all outputs should be zero in training mode
         # (dropout zeros the RNN output, then threshold subtraction makes it negative,
         # which produces 0 spikes)
-        assert torch.allclose(output, torch.zeros_like(output), atol=1e-6), \
+        assert torch.allclose(output, torch.zeros_like(output), atol=1e-6), (
             "dropout=1.0 in training mode should produce zero outputs"
-
+        )
 
     def test_leakyparallel_dropout_eval_deterministic(
         self, leakyparallel_dropout_instance, input_parallel
@@ -130,9 +129,9 @@ class TestLeakyParallelDropouts:
         output2 = leakyparallel_dropout_instance(input_parallel)
 
         # Outputs should be identical (scaled by 1-dropout)
-        assert torch.allclose(output1, output2), \
+        assert torch.allclose(output1, output2), (
             "dropout in eval mode should produce deterministic outputs"
-
+        )
 
     def test_leakyparallel_dropout_training_variability(
         self, leakyparallel_dropout_instance, input_parallel
@@ -148,9 +147,9 @@ class TestLeakyParallelDropouts:
         outputs_different = not torch.allclose(output1, output2, atol=1e-6)
 
         # Outputs should be valid (non-negative)
-        assert torch.all(output1 >= 0) and torch.all(output2 >= 0), \
+        assert torch.all(output1 >= 0) and torch.all(output2 >= 0), (
             "dropout outputs should be valid (non-negative)"
-
+        )
 
     def test_leakyparallel_dropout_affects_gradients(
         self, leakyparallel_instance, leakyparallel_dropout_instance, input_parallel
@@ -183,30 +182,32 @@ class TestLeakyParallelDropouts:
 
         # Gradients should be different due to dropout
         grad_diff = torch.abs(grad1 - grad2).sum()
-        assert grad_diff > 1e-6, \
+        assert grad_diff > 1e-6, (
             "dropout should cause different gradients during training"
+        )
 
         # Clear gradients for next test
         leakyparallel_instance.zero_grad()
         leakyparallel_dropout_instance.zero_grad()
 
-
     def test_leakyparallel_dropout_layer_exists(self, leakyparallel_dropout_instance):
         """Test that dropout layer is created when dropout > 0."""
-        assert hasattr(leakyparallel_dropout_instance, 'dropout_layer'), \
+        assert hasattr(leakyparallel_dropout_instance, "dropout_layer"), (
             "dropout_layer should exist when dropout > 0"
-        assert leakyparallel_dropout_instance.dropout_layer is not None, \
+        )
+        assert leakyparallel_dropout_instance.dropout_layer is not None, (
             "dropout_layer should not be None when dropout > 0"
-        assert leakyparallel_dropout_instance.dropout == 0.5, \
+        )
+        assert leakyparallel_dropout_instance.dropout == 0.5, (
             "dropout value should be stored correctly"
-
+        )
 
     def test_leakyparallel_no_dropout_layer(self, leakyparallel_instance):
         """Test that dropout layer is None when dropout = 0."""
-        assert hasattr(leakyparallel_instance, 'dropout_layer'), \
+        assert hasattr(leakyparallel_instance, "dropout_layer"), (
             "dropout_layer attribute should exist"
-        assert leakyparallel_instance.dropout_layer is None, \
+        )
+        assert leakyparallel_instance.dropout_layer is None, (
             "dropout_layer should be None when dropout = 0"
-        assert leakyparallel_instance.dropout == 0.0, \
-            "dropout value should be 0.0"
-
+        )
+        assert leakyparallel_instance.dropout == 0.0, "dropout value should be 0.0"

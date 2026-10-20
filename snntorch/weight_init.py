@@ -202,9 +202,7 @@ def fluctuation_driven_normal_(
         raise ValueError(f"mode must be one of {valid_modes}, got '{mode}'.")
 
     # Compute PSP kernel integrals
-    epsilon_bar, epsilon_hat = compute_psp_kernel_integrals(
-        tau_mem, tau_syn, dt, mode
-    )
+    epsilon_bar, epsilon_hat = compute_psp_kernel_integrals(tau_mem, tau_syn, dt, mode)
 
     # Compute fan-in
     fan_in, _ = torch.nn.init._calculate_fan_in_and_fan_out(tensor)

@@ -172,9 +172,7 @@ class AssociativeLeaky(SpikingNeuron):
 
         # state accumulation
         S_scaled = torch.cumsum(scaled_writes, dim=0)  # (T,B,d,n)
-        S_local = S_scaled * cumprod.unsqueeze(2).expand(
-            -1, -1, d, -1
-        )  # (T,B,d,n)
+        S_local = S_scaled * cumprod.unsqueeze(2).expand(-1, -1, d, -1)  # (T,B,d,n)
 
         # capture S-level mem/spk
         S_flat = S_local.reshape(T, B, d * n)  # (T,B,d*n)

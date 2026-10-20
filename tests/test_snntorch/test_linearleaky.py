@@ -59,16 +59,12 @@ def device():
 # Modules under test
 @pytest.fixture(scope="module")
 def linearleaky_single_channel(device):
-    return LinearLeaky(
-        beta=0.9, in_features=1, out_features=1, output=False
-    ).to(device)
+    return LinearLeaky(beta=0.9, in_features=1, out_features=1, output=False).to(device)
 
 
 @pytest.fixture(scope="module")
 def linearleaky_multi_channel(device):
-    return LinearLeaky(
-        beta=0.9, in_features=4, out_features=4, output=False
-    ).to(device)
+    return LinearLeaky(beta=0.9, in_features=4, out_features=4, output=False).to(device)
 
 
 @pytest.fixture(scope="module")
@@ -88,9 +84,7 @@ def input_tensor_single_batch_single_channel(device):
     batch = 1
     channels = 1
 
-    input_ = (
-        torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
-    )
+    input_ = torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
     input_ = input_.expand(timesteps, batch, channels)
 
     return input_.to(device)
@@ -102,9 +96,7 @@ def input_tensor_single_batch_multiple_channel(device):
     batch = 1
     channels = 4
 
-    input_ = (
-        torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
-    )
+    input_ = torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
     input_ = input_.expand(timesteps, batch, channels)
 
     return input_.to(device)
@@ -116,9 +108,7 @@ def input_tensor_multiple_batches_single_channel(device):
     batch = 2
     channels = 1
 
-    input_ = (
-        torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
-    )
+    input_ = torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
     input_ = input_.expand(timesteps, batch, channels)
 
     return input_.to(device)
@@ -130,9 +120,7 @@ def input_tensor_batch_multiple(device):
     batch = 2
     channels = 4
 
-    input_ = (
-        torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
-    )
+    input_ = torch.arange(0, timesteps).float().view(timesteps, 1, 1) / timesteps
     input_ = input_.expand(timesteps, batch, channels)
 
     return input_.to(device)
@@ -147,18 +135,16 @@ def test_single_batch_single_channel(
     )
 
     assert input_tensor_single_batch_single_channel.shape == output.shape
-    assert (
-        (input_tensor_single_batch_single_channel <= 1).all().item()
-    ), "Some input elements are greater than 1."
-    assert (
-        output.shape == input_tensor_single_batch_single_channel.shape
-    ), "Output shape does not match input shape."
-    assert (
-        torch.isfinite(output).all().item()
-    ), "Output contains non-finite values."
-    assert (output.std() > 0).item() or (
-        output.abs().sum() > 0
-    ).item(), "Output is constant or all zeros unexpectedly."
+    assert (input_tensor_single_batch_single_channel <= 1).all().item(), (
+        "Some input elements are greater than 1."
+    )
+    assert output.shape == input_tensor_single_batch_single_channel.shape, (
+        "Output shape does not match input shape."
+    )
+    assert torch.isfinite(output).all().item(), "Output contains non-finite values."
+    assert (output.std() > 0).item() or (output.abs().sum() > 0).item(), (
+        "Output is constant or all zeros unexpectedly."
+    )
 
 
 def test_single_batch_multi_channel(
@@ -169,18 +155,16 @@ def test_single_batch_multi_channel(
     )
 
     assert input_tensor_single_batch_multiple_channel.shape == output.shape
-    assert (
-        (input_tensor_single_batch_multiple_channel <= 1).all().item()
-    ), "Some input elements are greater than 1."
-    assert (
-        output.shape == input_tensor_single_batch_multiple_channel.shape
-    ), "Output shape does not match input shape."
-    assert (
-        torch.isfinite(output).all().item()
-    ), "Output contains non-finite values."
-    assert (output.std() > 0).item() or (
-        output.abs().sum() > 0
-    ).item(), "Output is constant or all zeros unexpectedly."
+    assert (input_tensor_single_batch_multiple_channel <= 1).all().item(), (
+        "Some input elements are greater than 1."
+    )
+    assert output.shape == input_tensor_single_batch_multiple_channel.shape, (
+        "Output shape does not match input shape."
+    )
+    assert torch.isfinite(output).all().item(), "Output contains non-finite values."
+    assert (output.std() > 0).item() or (output.abs().sum() > 0).item(), (
+        "Output is constant or all zeros unexpectedly."
+    )
 
 
 def test_multi_batch_single_channel(
@@ -191,18 +175,16 @@ def test_multi_batch_single_channel(
     )
 
     assert input_tensor_multiple_batches_single_channel.shape == output.shape
-    assert (
-        (input_tensor_multiple_batches_single_channel <= 1).all().item()
-    ), "Some input elements are greater than 1."
-    assert (
-        output.shape == input_tensor_multiple_batches_single_channel.shape
-    ), "Output shape does not match input shape."
-    assert (
-        torch.isfinite(output).all().item()
-    ), "Output contains non-finite values."
-    assert (output.std() > 0).item() or (
-        output.abs().sum() > 0
-    ).item(), "Output is constant or all zeros unexpectedly."
+    assert (input_tensor_multiple_batches_single_channel <= 1).all().item(), (
+        "Some input elements are greater than 1."
+    )
+    assert output.shape == input_tensor_multiple_batches_single_channel.shape, (
+        "Output shape does not match input shape."
+    )
+    assert torch.isfinite(output).all().item(), "Output contains non-finite values."
+    assert (output.std() > 0).item() or (output.abs().sum() > 0).item(), (
+        "Output is constant or all zeros unexpectedly."
+    )
 
 
 def test_multi_batch_multi_channel(
@@ -211,45 +193,39 @@ def test_multi_batch_multi_channel(
     output = linearleaky_multi_channel.forward(input_tensor_batch_multiple)
 
     assert input_tensor_batch_multiple.shape == output.shape
-    assert (
-        (input_tensor_batch_multiple <= 1).all().item()
-    ), "Some input elements are greater than 1."
-    assert (
-        output.shape == input_tensor_batch_multiple.shape
-    ), "Output shape does not match input shape."
-    assert (
-        torch.isfinite(output).all().item()
-    ), "Output contains non-finite values."
-    assert (output.std() > 0).item() or (
-        output.abs().sum() > 0
-    ).item(), "Output is constant or all zeros unexpectedly."
+    assert (input_tensor_batch_multiple <= 1).all().item(), (
+        "Some input elements are greater than 1."
+    )
+    assert output.shape == input_tensor_batch_multiple.shape, (
+        "Output shape does not match input shape."
+    )
+    assert torch.isfinite(output).all().item(), "Output contains non-finite values."
+    assert (output.std() > 0).item() or (output.abs().sum() > 0).item(), (
+        "Output is constant or all zeros unexpectedly."
+    )
 
 
 def test_multi_beta_forward(
     linearleaky_multi_beta, input_tensor_single_batch_multiple_channel
 ):
-    output = linearleaky_multi_beta.forward(
-        input_tensor_single_batch_multiple_channel
-    )
+    output = linearleaky_multi_beta.forward(input_tensor_single_batch_multiple_channel)
 
     assert input_tensor_single_batch_multiple_channel.shape == output.shape
-    assert (
-        (input_tensor_single_batch_multiple_channel <= 1).all().item()
-    ), "Some input elements are greater than 1."
-    assert (
-        output.shape == input_tensor_single_batch_multiple_channel.shape
-    ), "Output shape does not match input shape."
-    assert (
-        torch.isfinite(output).all().item()
-    ), "Output contains non-finite values."
-    assert (output.std() > 0).item() or (
-        output.abs().sum() > 0
-    ).item(), "Output is constant or all zeros unexpectedly."
+    assert (input_tensor_single_batch_multiple_channel <= 1).all().item(), (
+        "Some input elements are greater than 1."
+    )
+    assert output.shape == input_tensor_single_batch_multiple_channel.shape, (
+        "Output shape does not match input shape."
+    )
+    assert torch.isfinite(output).all().item(), "Output contains non-finite values."
+    assert (output.std() > 0).item() or (output.abs().sum() > 0).item(), (
+        "Output is constant or all zeros unexpectedly."
+    )
 
     # verify learn_beta is a learnable parameter
-    assert isinstance(
-        linearleaky_multi_beta.tau, nn.Parameter
-    ), "learn_beta should be a learnable parameter"
+    assert isinstance(linearleaky_multi_beta.tau, nn.Parameter), (
+        "learn_beta should be a learnable parameter"
+    )
 
 
 def test_output_channel_change_shape(device):
@@ -290,9 +266,7 @@ def test_equivalence_vs_external_linear_and_stateleaky(device):
 
     # reference path: external linear + stateleaky
     ext_linear = nn.Linear(in_features, out_features, bias=True, device=device)
-    lif_ref = StateLeaky(beta=beta, channels=out_features, output=True).to(
-        device
-    )
+    lif_ref = StateLeaky(beta=beta, channels=out_features, output=True).to(device)
 
     # under test: linearleaky with internal linear
     lif_under_test = LinearLeaky(
@@ -317,7 +291,13 @@ def test_equivalence_vs_external_linear_and_stateleaky(device):
 
 
 def test_chunking_with_gd_internal_linear():
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+    device = (
+        torch.device("cuda")
+        if torch.cuda.is_available()
+        else torch.device("mps")
+        if torch.backends.mps.is_available()
+        else torch.device("cpu")
+    )
 
     batch_size = 8
     chunk_size = 2
@@ -374,24 +354,20 @@ def test_chunking_with_gd_internal_linear():
         loss_chunk.backward()
 
         # assert grad is populated
-        assert (
-            module.linear.weight.grad is not None
-        ), "Gradient is not populated."
+        assert module.linear.weight.grad is not None, "Gradient is not populated."
 
     # concatenate chunks into a single tensor
     spk_chunked = torch.cat(spk_chunks, dim=1)
     grad_chunked = module.linear.weight.grad.clone()
 
     # assertions
-    assert (
-        spk_full.shape == spk_chunked.shape
-    ), "Chunked spike tensor shape mismatch."
-    assert torch.allclose(
-        spk_full, spk_chunked, atol=1e-6
-    ), "Forward pass (spikes) do not match."
-    assert torch.allclose(
-        grad_full, grad_chunked, atol=1e-6
-    ), "Backward pass (gradients) do not match."
+    assert spk_full.shape == spk_chunked.shape, "Chunked spike tensor shape mismatch."
+    assert torch.allclose(spk_full, spk_chunked, atol=1e-6), (
+        "Forward pass (spikes) do not match."
+    )
+    assert torch.allclose(grad_full, grad_chunked, atol=1e-6), (
+        "Backward pass (gradients) do not match."
+    )
 
 
 def test_kernel_truncation_impulse(device):

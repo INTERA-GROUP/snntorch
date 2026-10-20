@@ -74,12 +74,8 @@ def animator(data, fig, ax, num_steps=False, interval=40, cmap="plasma"):
     plt.axis("off")
 
     # iterate over time and take a snapshot with celluloid
-    for step in range(
-        num_steps
-    ):  # im appears unused but is required by camera.snap()
-        im = ax.imshow(
-            data[step], cmap=cmap, vmin=data.min(), vmax=data.max()
-        )  # noqa: F841
+    for step in range(num_steps):  # im appears unused but is required by camera.snap()
+        im = ax.imshow(data[step], cmap=cmap, vmin=data.min(), vmax=data.max())  # noqa: F841
         camera.snap()
     anim = camera.animate(interval=interval)
 
@@ -352,14 +348,10 @@ def _plt_style(data, labels, ax, idx, time_step=False):
     )
 
     # create dot for each label
-    plt.plot(
-        df["time"], my_range, "o", markersize=8, color="#007ACC", alpha=0.6
-    )
+    plt.plot(df["time"], my_range, "o", markersize=8, color="#007ACC", alpha=0.6)
 
     # set labels
-    ax.set_xlabel(
-        "Time Step", fontsize=15, fontweight="black", color="#333F4B"
-    )
+    ax.set_xlabel("Time Step", fontsize=15, fontweight="black", color="#333F4B")
     ax.set_ylabel("Labels", fontsize=15, fontweight="black", color="#333F4B")
 
     # set axis
@@ -375,9 +367,7 @@ def _plt_style(data, labels, ax, idx, time_step=False):
     ax.spines["left"].set_position(("axes", 0.0))
 
     if time_step:
-        ax.set_xlabel(
-            "Time [s]", fontsize=15, fontweight="black", color="#333F4B"
-        )
+        ax.set_xlabel("Time [s]", fontsize=15, fontweight="black", color="#333F4B")
         locs, steps = plt.xticks()
         steps = [float(item) * time_step for item in locs]
         plt.xticks(locs, steps)

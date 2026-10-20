@@ -30,9 +30,7 @@ def stdp_linear_single_step(
         trace_post = 0.0
 
     weight = fc.weight.data
-    trace_pre = (
-        trace_pre - trace_pre / tau_pre + in_spike
-    )  # shape = [batch_size, N_in]
+    trace_pre = trace_pre - trace_pre / tau_pre + in_spike  # shape = [batch_size, N_in]
     trace_post = (
         trace_post - trace_post / tau_post + out_spike
     )  # shape = [batch_size, N_out]
@@ -179,9 +177,7 @@ def stdp_conv2d_single_step(
                 :, :, h:h_end:stride_h, w:w_end:stride_w
             ]  # shape = [batch_size, C_in, h_out, w_out]
             post_spike = out_spike  # shape = [batch_size, C_out, h_out, h_out]
-            weight = conv.weight.data[
-                :, :, h, w
-            ]  # shape = [batch_size_out, C_in]
+            weight = conv.weight.data[:, :, h, w]  # shape = [batch_size_out, C_in]
 
             tr_pre = trace_pre[
                 :, :, h:h_end:stride_h, w:w_end:stride_w
@@ -263,9 +259,7 @@ def stdp_conv1d_single_step(
         post_spike = out_spike  # shape = [batch_size, C_out, l_out]
         weight = conv.weight.data[:, :, l]  # shape = [batch_size_out, C_in]
 
-        tr_pre = trace_pre[
-            :, :, l:l_end:stride_l
-        ]  # shape = [batch_size, C_in, l_out]
+        tr_pre = trace_pre[:, :, l:l_end:stride_l]  # shape = [batch_size, C_in, l_out]
         tr_post = trace_post  # shape = [batch_size, C_out, l_out]
 
         delta_w_pre = -(
@@ -331,7 +325,7 @@ class STDPLearner(nn.Module):
     def step(self, on_grad: bool = True, scale: float = 1.0):
         """
         Perform a single step of the STDP learning rule.
-        
+
         :param on_grad: If set to True, delta_w is added to the weight.grad of the synapse.
                         If set to False, delta_w is returned.
         :type on_grad: bool
@@ -356,12 +350,8 @@ class STDPLearner(nn.Module):
             raise NotImplementedError(self.synapse)
 
         for _ in range(length):
-            in_spike = self.in_spike_monitor.records.pop(
-                0
-            )  # [batch_size, N_in]
-            out_spike = self.out_spike_monitor.records.pop(
-                0
-            )  # [batch_size, N_out]
+            in_spike = self.in_spike_monitor.records.pop(0)  # [batch_size, N_in]
+            out_spike = self.out_spike_monitor.records.pop(0)  # [batch_size, N_out]
 
             self.trace_pre, self.trace_post, dw = stdp_f(
                 self.synapse,

@@ -199,9 +199,7 @@ class SLSTM(SpikingNeuron):
         self.hidden_size = hidden_size
         self.bias = bias
 
-        self.lstm_cell = nn.LSTMCell(
-            self.input_size, self.hidden_size, bias=self.bias
-        )
+        self.lstm_cell = nn.LSTMCell(self.input_size, self.hidden_size, bias=self.bias)
 
     def _init_mem(self):
         syn = torch.zeros(0)

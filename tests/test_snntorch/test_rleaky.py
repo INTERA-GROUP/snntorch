@@ -21,23 +21,17 @@ def rleaky_instance():
 
 @pytest.fixture(scope="module")
 def rleaky_instance_surrogate():
-    return snn.RLeaky(
-        beta=0.5, V=0.5, all_to_all=False, surrogate_disable=True
-    )
+    return snn.RLeaky(beta=0.5, V=0.5, all_to_all=False, surrogate_disable=True)
 
 
 @pytest.fixture(scope="module")
 def rleaky_reset_zero_instance():
-    return snn.RLeaky(
-        beta=0.5, V=0.5, all_to_all=False, reset_mechanism="zero"
-    )
+    return snn.RLeaky(beta=0.5, V=0.5, all_to_all=False, reset_mechanism="zero")
 
 
 @pytest.fixture(scope="module")
 def rleaky_reset_none_instance():
-    return snn.RLeaky(
-        beta=0.5, V=0.5, all_to_all=False, reset_mechanism="none"
-    )
+    return snn.RLeaky(beta=0.5, V=0.5, all_to_all=False, reset_mechanism="none")
 
 
 @pytest.fixture(scope="module")
@@ -75,7 +69,6 @@ class TestRLeaky:
         spk_rec = []
 
         for i in range(2):
-
             spk, mem = rleaky_instance(input_[i], spk, mem)
             mem_rec.append(mem)
             spk_rec.append(spk)

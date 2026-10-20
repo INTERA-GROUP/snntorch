@@ -50,7 +50,6 @@ mapping = {
 
 
 class DVSGesture(NeuromorphicDataset):
-
     """`DVS Gesture <https://www.research.ibm.com/dvsgesture/>`_ Dataset.
 
     The data was recorded using a DVS128. The dataset contains 11
@@ -352,9 +351,7 @@ def create_events_hdf5(directory, extracted_directory, hdf5_filename):
                 # split('.')[0].split('_')[:2]
                 # this line throws an error in get_slice,
                 # because idx_beg = idx_end --> empty batch
-                subj, light = (
-                    file_d.split("/")[-1].split(".")[0].split("_")[:2]
-                )
+                subj, light = file_d.split("/")[-1].split(".")[0].split("_")[:2]
                 metas.append(
                     {
                         "key": str(key),
@@ -396,11 +393,7 @@ def gather_aedat(
     fns = []
     for i in range(start_id, end_id):
         search_mask = (
-            extracted_directory
-            + "/"
-            + filename_prefix
-            + f"{i:02d}"
-            + "*.aedat"
+            extracted_directory + "/" + filename_prefix + f"{i:02d}" + "*.aedat"
         )
         glob_out = glob.glob(search_mask)
         if len(glob_out) > 0:

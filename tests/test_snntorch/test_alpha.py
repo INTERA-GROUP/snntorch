@@ -43,20 +43,15 @@ def alpha_hidden_instance():
 
 @pytest.fixture(scope="module")
 def alpha_hidden_reset_zero_instance():
-    return snn.Alpha(
-        alpha=0.6, beta=0.5, init_hidden=True, reset_mechanism="zero"
-    )
+    return snn.Alpha(alpha=0.6, beta=0.5, init_hidden=True, reset_mechanism="zero")
 
 
 @pytest.fixture(scope="module")
 def alpha_hidden_reset_none_instance():
-    return snn.Alpha(
-        alpha=0.6, beta=0.5, init_hidden=True, reset_mechanism="none"
-    )
+    return snn.Alpha(alpha=0.6, beta=0.5, init_hidden=True, reset_mechanism="none")
 
 
 class TestAlpha:
-
     with pytest.raises(ValueError):
         snn.Alpha(0.5, 0.5)
 

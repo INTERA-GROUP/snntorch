@@ -69,10 +69,7 @@ class TestLapicque:
                 / (lapicque_instance.R * lapicque_instance.C)
             )
         ) + input_[1] * lapicque_instance.R * (
-            1
-            / lapicque_instance.R
-            * lapicque_instance.C
-            * lapicque_instance.time_step
+            1 / lapicque_instance.R * lapicque_instance.C * lapicque_instance.time_step
         )
         assert spk_rec[0] == spk_rec[1]
 
@@ -136,9 +133,7 @@ class TestLapicque:
         with pytest.raises(TypeError):
             lapicque_hidden_instance(input_, input_)
 
-    def test_lapicque_compile_fullgraph(
-        self, lapicque_instance_surrogate, input_
-    ):
+    def test_lapicque_compile_fullgraph(self, lapicque_instance_surrogate, input_):
         explanation = dynamo.explain(lapicque_instance_surrogate)(input_[0])
 
         assert explanation.graph_break_count == 0

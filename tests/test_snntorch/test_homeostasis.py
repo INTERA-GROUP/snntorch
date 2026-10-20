@@ -151,9 +151,7 @@ class TestHomeostasis:
             lambda: snn.Lapicque(beta=0.9),
         ],
     )
-    def test_enable_homeostasis_available_on_every_lif_variant(
-        self, make_neuron
-    ):
+    def test_enable_homeostasis_available_on_every_lif_variant(self, make_neuron):
         neuron = make_neuron()
         assert hasattr(neuron, "enable_homeostasis")
         neuron.enable_homeostasis(increment=0.5, tau=15.0)

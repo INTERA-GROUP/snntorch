@@ -55,40 +55,28 @@ def assoc_fromN_noq(device):
 def test_d_value_d_key_positive():
     with pytest.raises(ValueError):
         # d_value must be a positive integer (0 is invalid)
-        _ = AssociativeLeaky(
-            in_dim=8, d_value=0, d_key=4, num_spiking_neurons=16
-        )
+        _ = AssociativeLeaky(in_dim=8, d_value=0, d_key=4, num_spiking_neurons=16)
     with pytest.raises(ValueError):
         # d_key must be a positive integer (0 is invalid)
-        _ = AssociativeLeaky(
-            in_dim=8, d_value=4, d_key=0, num_spiking_neurons=16
-        )
+        _ = AssociativeLeaky(in_dim=8, d_value=4, d_key=0, num_spiking_neurons=16)
     with pytest.raises(ValueError):
         # d_value must be positive (-1 is invalid)
-        _ = AssociativeLeaky(
-            in_dim=8, d_value=-1, d_key=4, num_spiking_neurons=16
-        )
+        _ = AssociativeLeaky(in_dim=8, d_value=-1, d_key=4, num_spiking_neurons=16)
     with pytest.raises(ValueError):
         # d_key must be positive (-1 is invalid)
-        _ = AssociativeLeaky(
-            in_dim=8, d_value=4, d_key=-1, num_spiking_neurons=16
-        )
+        _ = AssociativeLeaky(in_dim=8, d_value=4, d_key=-1, num_spiking_neurons=16)
 
 
 def test_fromN_requires_perfect_square():
     # num_spiking_neurons must be a perfect square (18 is not)
     with pytest.raises(ValueError):
-        _ = AssociativeLeaky.from_num_spiking_neurons(
-            in_dim=8, num_spiking_neurons=18
-        )
+        _ = AssociativeLeaky.from_num_spiking_neurons(in_dim=8, num_spiking_neurons=18)
 
 
 def test_num_spiking_neurons_consistency():
     # num_spiking_neurons must equal d_value * d_key (6 != 5)
     with pytest.raises(ValueError):
-        _ = AssociativeLeaky(
-            in_dim=8, d_value=2, d_key=3, num_spiking_neurons=5
-        )
+        _ = AssociativeLeaky(in_dim=8, d_value=2, d_key=3, num_spiking_neurons=5)
 
 
 # -----------------------

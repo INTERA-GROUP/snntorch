@@ -338,9 +338,7 @@ class RSynaptic(LIF):
         if not mem == None:
             self.mem = mem
 
-        if self.init_hidden and (
-            not spk == None or not syn == None or not mem == None
-        ):
+        if self.init_hidden and (not spk == None or not syn == None or not mem == None):
             raise TypeError(
                 "When `init_hidden=True`, RSynaptic expects 1 input argument."
             )
@@ -420,18 +418,14 @@ class RSynaptic(LIF):
 
     def _base_state_function(self, input_):
         base_fn_syn = (
-            self.alpha.clamp(0, 1) * self.syn
-            + input_
-            + self.recurrent(self.spk)
+            self.alpha.clamp(0, 1) * self.syn + input_ + self.recurrent(self.spk)
         )
         base_fn_mem = self.beta.clamp(0, 1) * self.mem + base_fn_syn
         return base_fn_syn, base_fn_mem
 
     def _base_state_reset_zero(self, input_):
         base_fn_syn = (
-            self.alpha.clamp(0, 1) * self.syn
-            + input_
-            + self.recurrent(self.spk)
+            self.alpha.clamp(0, 1) * self.syn + input_ + self.recurrent(self.spk)
         )
         base_fn_mem = self.beta.clamp(0, 1) * self.mem + base_fn_syn
         return 0, base_fn_mem
@@ -492,11 +486,7 @@ class RSynaptic(LIF):
                     "time."
                 )
         else:
-            if (
-                linear_features_bool
-                or conv2d_channels_bool
-                or kernel_size_bool
-            ):
+            if linear_features_bool or conv2d_channels_bool or kernel_size_bool:
                 raise TypeError(
                     "When `all_to_all`=False, none of `linear_features`, "
                     "`conv2d_channels`, or `kernel_size` should be specified. "

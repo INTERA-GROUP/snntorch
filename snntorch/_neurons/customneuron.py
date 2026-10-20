@@ -133,9 +133,7 @@ class CustomNeuron(SpikingNeuron):
         nxt = dict(self.update_fn(cur, input_))
         missing = set(self.state_names) - set(nxt)
         if missing:
-            raise ValueError(
-                f"update_fn did not return a value for: {sorted(missing)}"
-            )
+            raise ValueError(f"update_fn did not return a value for: {sorted(missing)}")
 
         spk_val = nxt[self.spike_state]
         if self.state_quant:

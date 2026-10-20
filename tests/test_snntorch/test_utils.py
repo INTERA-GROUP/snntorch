@@ -74,7 +74,6 @@ class NestedMultiNeuronModel(nn.Module):
 
 
 class TestResetMechanism(unittest.TestCase):
-
     def _check_reset(self, model_class):
         model = model_class()
         x = torch.randn(1, 10)

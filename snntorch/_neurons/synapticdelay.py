@@ -172,9 +172,7 @@ class SynapticDelay(nn.Module):
             )
         d = d.to(device=device, dtype=dtype)
 
-        lags = torch.arange(
-            self.max_delay + 1, device=device, dtype=dtype
-        ).unsqueeze(
+        lags = torch.arange(self.max_delay + 1, device=device, dtype=dtype).unsqueeze(
             0
         )  # (1, K+1)
         diff = lags - d.unsqueeze(1)  # (C, K+1)
@@ -246,9 +244,7 @@ class SynapticDelay(nn.Module):
 
     def extra_repr(self):
         d = self.delay.detach()
-        dstr = (
-            f"{float(d):.3g}" if d.ndim == 0 else f"tensor[{tuple(d.shape)}]"
-        )
+        dstr = f"{float(d):.3g}" if d.ndim == 0 else f"tensor[{tuple(d.shape)}]"
         return (
             f"max_delay={self.max_delay}, delay={dstr}, "
             f"channels={self.channels}, learn_delay={self.learn_delay}, "

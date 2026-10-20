@@ -316,9 +316,7 @@ class RLeaky(LIF):
             self.mem = mem
 
         if self.init_hidden and (not mem == None or not spk == None):
-            raise TypeError(
-                "When `init_hidden=True`," "RLeaky expects 1 input argument."
-            )
+            raise TypeError("When `init_hidden=True`,RLeaky expects 1 input argument.")
 
         if not self.spk.shape == input_.shape:
             self.spk = torch.zeros_like(input_, device=self.spk.device)
@@ -392,11 +390,7 @@ class RLeaky(LIF):
             param.requires_grad = False
 
     def _base_state_function(self, input_):
-        base_fn = (
-            self.beta.clamp(0, 1) * self.mem
-            + input_
-            + self.recurrent(self.spk)
-        )
+        base_fn = self.beta.clamp(0, 1) * self.mem + input_ + self.recurrent(self.spk)
         return base_fn
 
     def _base_sub(self, input_):
@@ -443,11 +437,7 @@ class RLeaky(LIF):
                     "be specified at the same time."
                 )
         else:
-            if (
-                linear_features_bool
-                or conv2d_channels_bool
-                or kernel_size_bool
-            ):
+            if linear_features_bool or conv2d_channels_bool or kernel_size_bool:
                 raise TypeError(
                     "When `all_to_all`=False, none of `linear_features`,"
                     "`conv2d_channels`, or `kernel_size` should be specified. "

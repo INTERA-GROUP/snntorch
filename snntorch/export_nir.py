@@ -1,4 +1,4 @@
-#from typing import Optional
+# from typing import Optional
 import nir
 import nirtorch
 import numpy as np
@@ -36,7 +36,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
             groups=module.groups,
         )
     """
-    #modifiying bias of the conv2d layer extraction
+    # modifiying bias of the conv2d layer extraction
     if isinstance(module, torch.nn.Conv2d):
         return nir.Conv2d(
             input_shape=None,
@@ -45,7 +45,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
             padding=module.padding,
             dilation=module.dilation,
             groups=module.groups,
-            #better handle for the bias if it's False
+            # better handle for the bias if it's False
             bias=(
                 module.bias.detach()
                 if isinstance(module.bias, torch.Tensor)
@@ -215,9 +215,7 @@ def _extract_snntorch_module(module: torch.nn.Module) -> nir.NIRNode | None:
         )
     elif isinstance(module, torch.nn.Flatten):
         # Getting rid of the batch dimension for NIR
-        start_dim = (
-            module.start_dim - 1 if module.start_dim > 0 else module.start_dim
-        )
+        start_dim = module.start_dim - 1 if module.start_dim > 0 else module.start_dim
         end_dim = module.end_dim - 1 if module.end_dim > 0 else module.end_dim
         return nir.Flatten(
             input_type=None,

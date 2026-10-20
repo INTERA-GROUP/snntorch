@@ -91,9 +91,7 @@ class TestNeuronDtypePreservation:
     @pytest.mark.parametrize("dtype", DTYPES)
     def test_sconv2dlstm_dtype(self, dtype):
         x = torch.randn(2, 3, 8, 8, dtype=dtype)
-        lif = snn.SConv2dLSTM(in_channels=3, out_channels=5, kernel_size=3).to(
-            dtype
-        )
+        lif = snn.SConv2dLSTM(in_channels=3, out_channels=5, kernel_size=3).to(dtype)
         spk, syn, mem = lif(x)
         assert spk.dtype == dtype
         assert syn.dtype == dtype

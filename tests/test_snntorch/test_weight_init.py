@@ -47,9 +47,7 @@ class TestComputePspKernelIntegrals:
     def test_invalid_mode_raises(self):
         """Verify ValueError for invalid mode."""
         with pytest.raises(ValueError, match="mode"):
-            weight_init.compute_psp_kernel_integrals(
-                0.02, 0.005, mode="invalid"
-            )
+            weight_init.compute_psp_kernel_integrals(0.02, 0.005, mode="invalid")
 
     def test_negative_tau_raises(self):
         """Verify ValueError for negative time constants."""
@@ -102,14 +100,9 @@ class TestFluctuationDrivenNormal:
 
         # Check statistics (allow 10% tolerance for sampling variance)
         assert (
-            abs(tensor.mean().item() - expected_mu_w)
-            / (expected_sigma_w + 1e-10)
-            < 0.1
+            abs(tensor.mean().item() - expected_mu_w) / (expected_sigma_w + 1e-10) < 0.1
         )
-        assert (
-            abs(tensor.std().item() - expected_sigma_w) / expected_sigma_w
-            < 0.1
-        )
+        assert abs(tensor.std().item() - expected_sigma_w) / expected_sigma_w < 0.1
 
     def test_mathematical_correctness_conv2d(self):
         """Verify fan_in computation for Conv2d tensor."""
@@ -289,14 +282,8 @@ class TestFluctuationDrivenNormal:
         )
 
         # Both should give the same sigma (theta cancels)
-        assert (
-            abs(tensor1.std().item() - expected_sigma_w) / expected_sigma_w
-            < 0.1
-        )
-        assert (
-            abs(tensor2.std().item() - expected_sigma_w) / expected_sigma_w
-            < 0.1
-        )
+        assert abs(tensor1.std().item() - expected_sigma_w) / expected_sigma_w < 0.1
+        assert abs(tensor2.std().item() - expected_sigma_w) / expected_sigma_w < 0.1
 
     def test_negative_tau_mem_raises(self):
         """Verify ValueError for negative tau_mem."""
@@ -370,10 +357,7 @@ class TestFluctuationDrivenNormalCentered:
             tensor, tau_mem, tau_syn, nu, sigma_u
         )
 
-        assert (
-            abs(tensor.std().item() - expected_sigma_w) / expected_sigma_w
-            < 0.1
-        )
+        assert abs(tensor.std().item() - expected_sigma_w) / expected_sigma_w < 0.1
 
     def test_dtype_preservation(self):
         """Verify dtype is preserved."""

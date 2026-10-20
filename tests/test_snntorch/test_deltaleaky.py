@@ -38,9 +38,9 @@ class TestDeltaLeakyCore:
         spikes = [delta(step_input[i])[0] for i in range(len(step_input))]
         assert sum(spikes) > 0, "Spikes were not generated"
 
-
     def test_threshold_sensitivity(self, delta_low, delta_high, step_input):
         """Prove that higher thresholds result in fewer spikes (core delta property)"""
+
         def count_spikes(neuron):
             neuron.mem = torch.zeros_like(step_input[0])
             neuron.mem_prev = torch.zeros_like(step_input[0])
@@ -49,4 +49,6 @@ class TestDeltaLeakyCore:
         low_spikes = count_spikes(delta_low)
         high_spikes = count_spikes(delta_high)
 
-        assert low_spikes >= high_spikes, "Higher threshold produced more spikes, should be less"
+        assert low_spikes >= high_spikes, (
+            "Higher threshold produced more spikes, should be less"
+        )

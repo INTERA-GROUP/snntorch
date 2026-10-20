@@ -138,12 +138,8 @@ class Alpha(LIF):
         self.register_buffer("mem", mem, False)
 
     def reset_mem(self):
-        self.syn_exc = torch.zeros_like(
-            self.syn_exc, device=self.syn_exc.device
-        )
-        self.syn_inh = torch.zeros_like(
-            self.syn_inh, device=self.syn_inh.device
-        )
+        self.syn_exc = torch.zeros_like(self.syn_exc, device=self.syn_exc.device)
+        self.syn_inh = torch.zeros_like(self.syn_inh, device=self.syn_inh.device)
         self.mem = torch.zeros_like(self.mem, device=self.mem.device)
 
         return self.syn_exc, self.syn_inh, self.mem
@@ -166,9 +162,7 @@ class Alpha(LIF):
         if self.init_hidden and (
             not mem == None or not syn_exc == None or not syn_inh == None
         ):
-            raise TypeError(
-                "When `init_hidden=True`, Alpha expects 1 input argument."
-            )
+            raise TypeError("When `init_hidden=True`, Alpha expects 1 input argument.")
 
         if not self.syn_exc.shape == input_.shape:
             self.syn_exc = torch.zeros_like(input_, device=self.syn_exc.device)
@@ -204,10 +198,7 @@ class Alpha(LIF):
         base_fn_syn_inh = self.beta.clamp(0, 1) * self.syn_inh - input_
         tau_alpha = (
             torch.log(self.alpha.clamp(0, 1))
-            / (
-                torch.log(self.beta.clamp(0, 1))
-                - torch.log(self.alpha.clamp(0, 1))
-            )
+            / (torch.log(self.beta.clamp(0, 1)) - torch.log(self.alpha.clamp(0, 1)))
             + 1
         )
         base_fn_mem = tau_alpha * (base_fn_syn_exc + base_fn_syn_inh)

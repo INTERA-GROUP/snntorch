@@ -47,9 +47,7 @@ def rsynaptic_reset_none_instance():
 
 @pytest.fixture(scope="module")
 def rsynaptic_hidden_instance():
-    return snn.RSynaptic(
-        alpha=0.5, beta=0.5, V=0.5, all_to_all=False, init_hidden=True
-    )
+    return snn.RSynaptic(alpha=0.5, beta=0.5, V=0.5, all_to_all=False, init_hidden=True)
 
 
 @pytest.fixture(scope="module")
@@ -154,9 +152,7 @@ class TestRSynaptic:
         with pytest.raises(TypeError):
             rsynaptic_hidden_instance(input_, input_)
 
-    def test_rsynaptic_compile_fullgraph(
-        self, rsynaptic_instance_surrogate, input_
-    ):
+    def test_rsynaptic_compile_fullgraph(self, rsynaptic_instance_surrogate, input_):
         explanation = dynamo.explain(rsynaptic_instance_surrogate)(input_[0])
 
         assert explanation.graph_break_count == 0

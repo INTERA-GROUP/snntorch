@@ -62,9 +62,7 @@ class TestLoss:
         reduced_loss_fn = sf.ce_rate_loss()
         reduced_loss = reduced_loss_fn(spike_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_ce_rate_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -80,9 +78,7 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
     def test_ce_count_loss_base(self, spike_predicted_, targets_labels_):
         loss_fn = sf.ce_count_loss()
@@ -97,9 +93,7 @@ class TestLoss:
         reduced_loss_fn = sf.ce_count_loss()
         reduced_loss = reduced_loss_fn(spike_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_ce_count_loss_population_code_dtype(self):
         # population code should preserve the input dtype (float64)
@@ -129,32 +123,22 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
-    def test_ce_max_membrane_loss_base(
-        self, membrane_predicted_, targets_labels_
-    ):
+    def test_ce_max_membrane_loss_base(self, membrane_predicted_, targets_labels_):
         loss_fn = sf.ce_max_membrane_loss()
 
         assert loss_fn.weight is None
         assert loss_fn.reduction == "mean"
 
-    def test_ce_max_membrane_loss_unreduced(
-        self, membrane_predicted_, targets_labels_
-    ):
+    def test_ce_max_membrane_loss_unreduced(self, membrane_predicted_, targets_labels_):
         unreduced_loss_fn = sf.ce_max_membrane_loss(reduction="none")
-        unreduced_loss = unreduced_loss_fn(
-            membrane_predicted_, targets_labels_
-        )
+        unreduced_loss = unreduced_loss_fn(membrane_predicted_, targets_labels_)
 
         reduced_loss_fn = sf.ce_max_membrane_loss()
         reduced_loss = reduced_loss_fn(membrane_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_ce_max_membrane_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -170,9 +154,7 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
     def test_mse_count_loss_base(self, spike_predicted_, targets_labels_):
         loss_fn = sf.mse_count_loss()
@@ -187,9 +169,7 @@ class TestLoss:
         reduced_loss_fn = sf.mse_count_loss()
         reduced_loss = reduced_loss_fn(spike_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_mse_count_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -205,32 +185,22 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
-    def test_mse_membrane_loss_base(
-        self, membrane_predicted_, targets_labels_
-    ):
+    def test_mse_membrane_loss_base(self, membrane_predicted_, targets_labels_):
         loss_fn = sf.mse_membrane_loss()
 
         assert loss_fn.weight is None
         assert loss_fn.reduction == "mean"
 
-    def test_mse_membrane_loss_unreduced(
-        self, membrane_predicted_, targets_labels_
-    ):
+    def test_mse_membrane_loss_unreduced(self, membrane_predicted_, targets_labels_):
         unreduced_loss_fn = sf.mse_membrane_loss(reduction="none")
-        unreduced_loss = unreduced_loss_fn(
-            membrane_predicted_, targets_labels_
-        )
+        unreduced_loss = unreduced_loss_fn(membrane_predicted_, targets_labels_)
 
         reduced_loss_fn = sf.mse_membrane_loss()
         reduced_loss = reduced_loss_fn(membrane_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_mse_membrane_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -246,9 +216,7 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
     def test_mse_temporal_loss_base(self, spike_predicted_, targets_labels_):
         loss_fn = sf.mse_temporal_loss(on_target=1, off_target=0)
@@ -256,18 +224,14 @@ class TestLoss:
         assert loss_fn.weight is None
         assert loss_fn.reduction == "mean"
 
-    def test_mse_temporal_loss_unreduced(
-        self, spike_predicted_, targets_labels_
-    ):
+    def test_mse_temporal_loss_unreduced(self, spike_predicted_, targets_labels_):
         unreduced_loss_fn = sf.mse_temporal_loss(reduction="none")
         unreduced_loss = unreduced_loss_fn(spike_predicted_, targets_labels_)
 
         reduced_loss_fn = sf.mse_temporal_loss()
         reduced_loss = reduced_loss_fn(spike_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_mse_temporal_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -283,9 +247,7 @@ class TestLoss:
         # expectation
         expected_weighted_loss = (vanilla_loss * weight_multiplier).mean()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
     def test_ce_temporal_loss_base(self, spike_predicted_, targets_labels_):
         loss_fn = sf.ce_temporal_loss()
@@ -293,18 +255,14 @@ class TestLoss:
         assert loss_fn.weight is None
         assert loss_fn.reduction == "mean"
 
-    def test_ce_temporal_loss_unreduced(
-        self, spike_predicted_, targets_labels_
-    ):
+    def test_ce_temporal_loss_unreduced(self, spike_predicted_, targets_labels_):
         unreduced_loss_fn = sf.ce_temporal_loss(reduction="none")
         unreduced_loss = unreduced_loss_fn(spike_predicted_, targets_labels_)
 
         reduced_loss_fn = sf.ce_temporal_loss()
         reduced_loss = reduced_loss_fn(spike_predicted_, targets_labels_)
 
-        assert_approximate_equality(
-            unreduced_loss.mean().item(), reduced_loss.item()
-        )
+        assert_approximate_equality(unreduced_loss.mean().item(), reduced_loss.item())
 
     def test_ce_temporal_loss_weighted(
         self, spike_predicted_, targets_labels_, class_weights_
@@ -322,10 +280,7 @@ class TestLoss:
             vanilla_loss * weight_multiplier
         ).sum() / weight_multiplier.sum()
 
-        assert_approximate_equality(
-            weighted_loss.item(), expected_weighted_loss.item()
-        )
-
+        assert_approximate_equality(weighted_loss.item(), expected_weighted_loss.item())
 
 
 class TestClassWeightAxis:
@@ -347,17 +302,13 @@ class TestClassWeightAxis:
         )
         targets = torch.tensor([0, 1])
         weights = torch.tensor([1.0, 3.0])
-        loss_fn = sf.mse_count_loss(
-            correct_rate=1, incorrect_rate=0, weight=weights
-        )
+        loss_fn = sf.mse_count_loss(correct_rate=1, incorrect_rate=0, weight=weights)
 
         desired_counts = torch.tensor([[2.0, 0.0], [0.0, 2.0]])
         per_output_error = (spikes.sum(0) - desired_counts).square()
         expected = (per_output_error * weights[targets, None]).mean() / 2
 
-        assert_approximate_equality(
-            loss_fn(spikes, targets).item(), expected.item()
-        )
+        assert_approximate_equality(loss_fn(spikes, targets).item(), expected.item())
         # independent samples must not interact through the weights
         swapped_loss = loss_fn(spikes[:, [1, 0]], targets[[1, 0]])
         assert_approximate_equality(swapped_loss.item(), expected.item())
@@ -369,13 +320,9 @@ class TestClassWeightAxis:
         loss_fn = sf.mse_membrane_loss(weight=weights)
 
         desired = torch.eye(2)[targets]
-        expected = (
-            (membrane[0] - desired).square() * weights[targets, None]
-        ).mean()
+        expected = ((membrane[0] - desired).square() * weights[targets, None]).mean()
 
-        assert_approximate_equality(
-            loss_fn(membrane, targets).item(), expected.item()
-        )
+        assert_approximate_equality(loss_fn(membrane, targets).item(), expected.item())
         swapped_loss = loss_fn(membrane[:, [1, 0]], targets[[1, 0]])
         assert_approximate_equality(swapped_loss.item(), expected.item())
 
@@ -397,13 +344,9 @@ class TestClassWeightAxis:
 
         observed = torch.tensor([[0.0, 1.0], [2.0, 0.0]])
         desired = torch.tensor([[0.0, 3.0], [3.0, 0.0]])
-        expected = (
-            ((observed - desired) / 4).square() * weights[targets, None]
-        ).mean()
+        expected = (((observed - desired) / 4).square() * weights[targets, None]).mean()
 
-        assert_approximate_equality(
-            loss_fn(spikes, targets).item(), expected.item()
-        )
+        assert_approximate_equality(loss_fn(spikes, targets).item(), expected.item())
         swapped_loss = loss_fn(spikes[:, [1, 0]], targets[[1, 0]])
         assert_approximate_equality(swapped_loss.item(), expected.item())
 
@@ -425,10 +368,7 @@ class TestClassWeightAxis:
         loss_fn = sf.mse_temporal_loss(**settings)
         batched_loss = loss_fn(spikes, targets)
         separate_loss = torch.stack(
-            [
-                loss_fn(spikes[:, b : b + 1], targets[b : b + 1])
-                for b in range(2)
-            ]
+            [loss_fn(spikes[:, b : b + 1], targets[b : b + 1]) for b in range(2)]
         ).mean()
         assert_approximate_equality(batched_loss.item(), 0.03125)
         assert_approximate_equality(batched_loss.item(), separate_loss.item())
@@ -441,9 +381,7 @@ class TestClassWeightAxis:
         spikes[[0, 2], 1, 1] = 1
 
         times = sf.SpikeTime.MultiSpike.apply(spikes, 2, spikes.device)
-        expected = torch.tensor(
-            [[[0, 1], [1, 0]], [[1, 3], [2, 2]]]
-        )
+        expected = torch.tensor([[[0, 1], [1, 0]], [[1, 3], [2, 2]]])
         assert torch.equal(times, expected)
 
     def test_weighted_mse_losses_accept_non_square_shapes(self):

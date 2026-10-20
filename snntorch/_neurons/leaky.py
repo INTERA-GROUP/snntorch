@@ -214,9 +214,7 @@ class Leaky(LIF):
             self.mem = self.state_quant(self.mem)
 
         if self.inhibition:
-            spk = self.fire_inhibition(
-                self.mem.size(0), self.mem
-            )  # batch_size
+            spk = self.fire_inhibition(self.mem.size(0), self.mem)  # batch_size
         else:
             spk = self.fire(self.mem)
 

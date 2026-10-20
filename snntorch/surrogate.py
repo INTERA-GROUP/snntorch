@@ -1,4 +1,3 @@
-
 import torch
 
 # Spike-gradient functions
@@ -365,11 +364,7 @@ class SpikeRateEscape(torch.autograd.Function):
     def backward(ctx, grad_output):
         (input_,) = ctx.saved_tensors
         grad_input = grad_output.clone()
-        grad = (
-            grad_input
-            * ctx.slope
-            * torch.exp(-ctx.beta * torch.abs(input_ - 1))
-        )
+        grad = grad_input * ctx.slope * torch.exp(-ctx.beta * torch.abs(input_ - 1))
         return grad, None, None
 
 
@@ -503,9 +498,7 @@ class LeakySpikeOperator(torch.autograd.Function):
     def backward(ctx, grad_output):
         (out,) = ctx.saved_tensors
         grad_input = grad_output.clone()
-        grad = (
-            grad_input * out + (~out.bool()).float() * ctx.slope * grad_input
-        )
+        grad = grad_input * out + (~out.bool()).float() * ctx.slope * grad_input
         return grad
 
 
@@ -603,9 +596,9 @@ class CustomSurrogate(torch.autograd.Function):
     static method.
 
     The arguments of the custom surrogate gradient function are always
-    the input of the forward pass (input_), the gradient of the input 
+    the input of the forward pass (input_), the gradient of the input
     (grad_input) and the output of the forward pass (out).
-    
+
     ** Important Note: The hyperparameters of the custom surrogate gradient
     function have to be defined inside of the function itself. **
 
