@@ -1,39 +1,12 @@
-import torch.nn as nn
-
-import snntorch as snn
-
-# class Net(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-
-#     # initialize layers
-#         snn.LIF.clear_instances()  # boilerplate
-#         self.lif1 = snn.Stein(
-#         alpha=0.5, beta=0.5, num_inputs=1, batch_size=1, init_hidden=True)
-#         self.srm0 = snn.SRM0(
-#         alpha=0.5, beta=0.4, num_inputs=1, batch_size=1, init_hidden=True)
+import pytest
+import torch
 
 
-class Net(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        # initialize layers
-        snn.LIF.clear_instances()  # boilerplate
-        self.fc1 = nn.Linear(1, 1)
-        self.lif1 = snn.Synaptic(
-            alpha=0.5, beta=0.5, num_inputs=1, batch_size=1, init_hidden=True
-        )
-        self.lif2 = snn.Alpha(
-            alpha=0.6, beta=0.5, num_inputs=1, batch_size=1, hidden_init=True
-        )
-
-    def forward(self, x):
-        cur1 = self.fc1(x)
-        self.lif1.spk1, self.lif1.syn1, self.lif1.mem1 = self.lif1(
-            cur1, self.lif1.syn, self.lif1.mem
-        )
-        return self.lif1.spk, self.lif1.mem
-
-
-# net = Net().to(device)
+def pytest_collection_modifyitems(config, items):
+    """Skip tests marked ``cuda`` when no GPU is available."""
+    if torch.cuda.is_available():
+        return
+    skip_cuda = pytest.mark.skip(reason="CUDA is not available")
+    for item in items:
+        if "cuda" in item.keywords:
+            item.add_marker(skip_cuda)

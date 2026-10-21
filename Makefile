@@ -62,7 +62,7 @@ test-all: ## run tests on every Python version with tox
 	uv run tox
 
 coverage: ## check code coverage quickly with the default Python
-	uv run coverage run --source snntorch -m pytest
+	uv run coverage run -m pytest
 	uv run coverage report -m
 	uv run coverage html
 	$(BROWSER) htmlcov/index.html

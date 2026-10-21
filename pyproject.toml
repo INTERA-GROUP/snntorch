@@ -124,6 +124,19 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
+markers = [
+    "cuda: test needs a CUDA device (skipped when none is available)",
+    "slow: long-running test (deselect with -m 'not slow')",
+]
+
+[tool.coverage.run]
+source = ["snntorch"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
 
 [tool.ruff]
 line-length = 88
